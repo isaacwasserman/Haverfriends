@@ -21,7 +21,7 @@ conda install --file requirements.txt
 ### Step 3: Run
 
 ```
-python app.py
+python main.py
 ```
 
 OR (recommended):
