@@ -5,6 +5,7 @@ from firebase.authenticate import authenticate
 import firebase_admin
 from firebase_admin import credentials, firestore, initialize_app
 import firebase.firebaseFunctions as firebase_functions
+from datetime import datetime
 
 
 import datetime
@@ -25,16 +26,17 @@ def chat(chatID):
         msg=request.json['msg']
         firebase_functions.sendChat(chatID, "testID", msg)
     user = authenticate(request.cookies.get('session'))
-    if "redirect" in user:
-        return redirect(user["redirect"])
+    #if "redirect" in user:
+    #    return redirect(user["redirect"])
     chatID=str(chatID)
-    messages= firebase_functions.getChatConversation(chatID).to_dict()['messages']
+    messages= firebase_functions.getChatConversation(chatID)['messages']
     messages_array=[] 
     for message in messages: 
         #two tasks remaining: need to convert Firestore time object to Python string and 
         # get sender's name from sender ID. For now, use senderID in place of sender name 
+        time = datetime.datetime.fromtimestamp(message['time']).strftime("%Y-%m-%d %I:%M:%S")
         sender=message['senderID'] 
-        complete_msg= sender + ": " + message['text']
+        complete_msg= time + ": " + sender + ": " + message['text']
         messages_array.append(complete_msg) 
     return render_template('chat.html', messages_array=messages_array, chatID=chatID)
 
