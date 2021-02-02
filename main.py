@@ -1,5 +1,4 @@
 from flask import *
-import firebase.firebaseFunctions
 app = Flask(__name__)       
 
 @app.route("/")  
