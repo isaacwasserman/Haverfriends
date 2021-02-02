@@ -18,9 +18,6 @@ initApp = function() {
         // User is signed in.
         var displayName = user.displayName;
         user.getIdToken().then(function(accessToken) {
-//          document.getElementById('sign-in-status').textContent = 'Signed in';
-//          document.getElementById('sign-in').textContent = 'Sign out';
-//          document.getElementById('account-details').textContent = JSON.stringify({
             displayName: displayName,
             email: email,
             emailVerified: emailVerified,
@@ -33,9 +30,6 @@ initApp = function() {
         });
       } else {
         // User is signed out.
-//        document.getElementById('sign-in-status').textContent = 'Signed out';
-//        document.getElementById('sign-in').textContent = 'Sign in';
-//        document.getElementById('account-details').textContent = 'null';
       }
     }, function(error) {
       console.log(error);

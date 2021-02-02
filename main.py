@@ -1,13 +1,9 @@
 from flask import *
 from firebase.firebaseInit import auth
 from firebase.firebaseInit import exceptions
-from firebase.authenticate import getUser
+from firebase.authenticate import authenticate
 import firebase_admin
 from firebase_admin import credentials, firestore, initialize_app
-
-#initialize firebase
-cred = credentials.Certificate("firebase/private-key.json")
-default_app = initialize_app(cred)
 
 #create Database object
 db = firestore.client()
@@ -18,16 +14,17 @@ app = Flask(__name__)
 
 @app.route("/")  
 def home():
-    user = getUser(request.cookies.get('session'))
-    if user is None:
-        return redirect("/login")
+    user = authenticate(request.cookies.get('session'))
+    if "redirect" in user:
+        return redirect(user["redirect"])
+
     return render_template('home.html')
 
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
 def chat(chatID):
-    user = getUser(request.cookies.get('session'))
-    if user is None:
-        return redirect("/login")
+    user = authenticate(request.cookies.get('session'))
+    if "redirect" in user:
+        return redirect(user["redirect"])
     chatID=str(chatID)
     messages= db.collection('chats').document(chatID).get().to_dict()['messages']
     messages_array=[]
@@ -42,9 +39,9 @@ def chat(chatID):
 
 @app.route("/chat", methods = ["GET","POST"]) 
 def chat_general():
-    user = getUser(request.cookies.get('session'))
-    if user is None:
-        return redirect("/login")
+    user = authenticate(request.cookies.get('session'))
+    if "redirect" in user:
+        return redirect(user["redirect"])
     return render_template("chat_general.html")
 
 @app.route("/register", methods = ["GET","POST"]) 
@@ -80,23 +77,23 @@ def login():
 
 @app.route("/profile/<user_ID>", methods = ["GET","POST"]) 
 def profile(user_ID):
-    user = getUser(request.cookies.get('session'))
-    if user is None:
-        return redirect("/login")
+    user = authenticate(request.cookies.get('session'))
+    if "redirect" in user:
+        return redirect(user["redirect"])
     return render_template("profile.html")
 
-@app.route("/create-profile/<user_ID>", methods = ["GET","POST"]) 
-def create_profile(user_ID):
-    user = getUser(request.cookies.get('session'))
-    if user is None:
-        return redirect("/login")
+@app.route("/create-profile", methods = ["GET","POST"])
+def create_profile():
+    user = authenticate(request.cookies.get('session'))
+    if "redirect" in user and user["redirect"] != "/create-profile":
+        return redirect(user["redirect"])
     return render_template("create_profile.html")
 
 @app.route("/edit-profile/<user_ID>", methods = ["GET","POST"])
 def edit_profile(user_ID):
-    user = getUser(request.cookies.get('session'))
-    if user is None:
-        return redirect("/login")
+    user = authenticate(request.cookies.get('session'))
+    if "redirect" in user:
+        return redirect(user["redirect"])
     return render_template("edit_profile.html") 
 
 if __name__ == '__main__': 

@@ -1,20 +1,14 @@
-import firebase_admin
-from firebase_admin import credentials
+from .firebaseInit import firebase
 from firebase_admin import firestore
-import time
-
-cred = credentials.Certificate("private-key.json")
-firebase = firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
-
-
 def addUser(user):
     users = db.collection('users')
-    users.document(uid).set({
-        'uid': user.uid,
-        'name': user.displayName,
+    users.document(user["uid"]).set({
+        'uid': user["uid"],
+        'name': user["name"],
+        'email': user["email"],
         'photo': "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png",
         'gender_pronouns': "",
         'grad_year': "",
@@ -27,16 +21,16 @@ def addUser(user):
         'active_chat_partners': [],
         'match_count': 0
     })
-    return user.get()
+    return users.document(user["uid"]).get().to_dict()
 
 def editUser(uid, newInfo):
     user = db.collection('users').document(uid)
     user.update(newInfo)
-    return user.get()
+    return user.get().to_dict()
 
 def getUser(uid):
     user = db.collection('users').document(uid)
-    return user.get()
+    return user.get().to_dict()
 
 def addChatConversation(userOneID, userTwoID):
     chats = db.collection('chats')
@@ -50,11 +44,11 @@ def addChatConversation(userOneID, userTwoID):
 
     editUser(userOneID, {'active_chat_partners': firestore.ArrayUnion([userTwoID])})
     editUser(userTwoID, {'active_chat_partners': firestore.ArrayUnion([userOneID])})
-    return chats.document(chat_id).get()
+    return chats.document(chat_id).get().to_dict()
 
 def getChatConversation(chat_id):
     conversation = db.collection('chats').document(chat_id)
-    return conversation.get()
+    return conversation.get().to_dict()
 
 def sendChat(chat_id, senderID, message):
     conversation = db.collection('chats').document(chat_id)
