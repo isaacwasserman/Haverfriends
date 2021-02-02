@@ -24,7 +24,11 @@
 
         </script>
         <div> Welcome to chat! </div>
-        <div id="message-display"> </div>
+        <div id="message-display"> 
+        {% for message in messages_array %}
+        <p> {{message}} </p>
+        {% endfor %}
+        </div>
         <input type="text" id="message-input">
         <button id="send"> Send </button>
     </body>
