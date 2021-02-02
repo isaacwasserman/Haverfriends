@@ -11,6 +11,10 @@ def home():
 
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
 def chat(chatID):
+    if request.method == "POST": 
+        print('request is working')
+        msg=request.json['msg']
+        firebase_functions.sendChat(chatID, "testID", msg)
     chatID=str(chatID)
     messages= firebase_functions.getChatConversation(chatID).to_dict()['messages'] 
     messages_array=[] 
@@ -20,7 +24,6 @@ def chat(chatID):
         sender=message['senderID'] 
         complete_msg= sender + ": " + message['text']
         messages_array.append(complete_msg) 
-    print(messages_array)
     return render_template('chat.html', messages_array=messages_array, chatID=chatID)  
 
 @app.route("/chat", methods = ["GET","POST"]) 
