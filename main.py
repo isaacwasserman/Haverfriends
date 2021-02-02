@@ -21,11 +21,11 @@ def home():
 
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
 def chat(chatID):
+    user = authenticate(request.cookies.get('session'))
     if request.method == "POST":
         print('request is working')
         msg=request.json['msg']
-        firebase_functions.sendChat(chatID, "testID", msg)
-    user = authenticate(request.cookies.get('session'))
+        firebase_functions.sendChat(chatID, user['user_id'], msg)
     #if "redirect" in user:
     #    return redirect(user["redirect"])
     chatID=str(chatID)
