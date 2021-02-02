@@ -5,11 +5,11 @@ app = Flask(__name__)
 def home():
     return render_template('home.html')
 
-@app.route("/chat") #later need to add specific chatID to endpoint
+@app.route("/chat/<chatID>", methods = ["GET","POST"]) #later need to add specific chatID to endpoint
 def chat(): 
     return render_template('chat.html')  
 
-@app.route("/chat_general") 
+@app.route("/chat") 
 def chat_general(): 
     return render_template("chat_general.html")
 
@@ -21,15 +21,15 @@ def register():
 def login(): 
     return render_template("login.html")
 
-@app.route("/profile") 
+@app.route("/profile/<user_ID>") 
 def profile(): 
     return render_template("profile.html")
 
-@app.route("/create-profile") 
+@app.route("/create-profile/<user_ID>") 
 def create_profile(): 
     return render_template("create_profile.html")
 
-@app.route("/edit-profile")
+@app.route("/edit-profile/<user_ID>")
 def edit_profile(): 
     return render_template("edit_profile.html") 
 
