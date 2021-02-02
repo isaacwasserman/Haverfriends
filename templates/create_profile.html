@@ -2,4 +2,26 @@
     <head> 
         <title> Create your profile </title>
     </head>
+    <body>
+        <form method="POST" action="/create-profile">
+
+          <fieldset class="form-field">
+              {{ form.profilePic.label }}
+              {{ form.profilePic }}
+          </fieldset>
+
+<!--          <fieldset class="form-field">-->
+<!--              {{ form.email.label }}-->
+<!--              {{ form.email }}-->
+<!--          </fieldset>-->
+
+<!--          <fieldset class="form-field">-->
+<!--              {{ form.body.label }}-->
+<!--              {{ form.body }}-->
+<!--          </fieldset>-->
+
+          {{ form.submit }}
+
+      </form>
+    </body>
 </html>

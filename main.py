@@ -1,3 +1,4 @@
+import os
 from flask import *
 from firebase.firebaseInit import auth
 from firebase.firebaseInit import exceptions
@@ -6,10 +7,11 @@ import firebase_admin
 from firebase_admin import credentials, firestore, initialize_app
 import firebase.firebaseFunctions as firebase_functions
 from datetime import datetime
-
+import forms
 
 import datetime
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.urandom(32)
 
 @app.route("/")  
 def home():
@@ -91,6 +93,11 @@ def create_profile():
     user = authenticate(request.cookies.get('session'))
     if "redirect" in user and user["redirect"] != "/create-profile":
         return redirect(user["redirect"])
+    form = forms.CreateProfileForm()
+    if form.validate_on_submit():
+        return "success"
+    else:
+        return "unable to validate form"
     return render_template("create_profile.html")
 
 @app.route("/edit-profile/<user_ID>", methods = ["GET","POST"])

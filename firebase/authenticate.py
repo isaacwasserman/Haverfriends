@@ -3,8 +3,9 @@ from .firebaseFunctions import getUser
 from .firebaseFunctions import addUser
 
 def authenticate(sessionCookie):
+    print(sessionCookie)
     if sessionCookie is None:
-        return None
+        return {"redirect": "/login"}
     else:
         try:
             decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
