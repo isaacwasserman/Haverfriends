@@ -5,7 +5,7 @@ app = Flask(__name__)
 def home():
     return render_template('home.html')
 
-@app.route("/chat/<chatID>", methods = ["GET","POST"]) #later need to add specific chatID to endpoint
+@app.route("/chat/<chatID>", methods = ["GET","POST"]) 
 def chat(): 
     return render_template('chat.html')  
 
