@@ -4,13 +4,11 @@ from firebase.firebaseInit import exceptions
 from firebase.authenticate import authenticate
 import firebase_admin
 from firebase_admin import credentials, firestore, initialize_app
-
-#create Database object
-db = firestore.client()
+import firebase.firebaseFunctions as firebase_functions
 
 
 import datetime
-app = Flask(__name__)       
+app = Flask(__name__)
 
 @app.route("/")  
 def home():
@@ -26,16 +24,16 @@ def chat(chatID):
     if "redirect" in user:
         return redirect(user["redirect"])
     chatID=str(chatID)
-    messages= db.collection('chats').document(chatID).get().to_dict()['messages']
-    messages_array=[]
-    for message in messages:
-        #two tasks remaining: need to convert Firestore time object to Python string and
-        # get sender's name from sender ID. For now, use senderID in place of sender name
-        sender=message['senderID']
+    messages= firebase_functions.getChatConversation(chatID).to_dict()['messages']
+    messages_array=[] 
+    for message in messages: 
+        #two tasks remaining: need to convert Firestore time object to Python string and 
+        # get sender's name from sender ID. For now, use senderID in place of sender name 
+        sender=message['senderID'] 
         complete_msg= sender + ": " + message['text']
         messages_array.append(complete_msg)
     print(messages_array)
-    return render_template('chat.html', messages_array=messages_array)
+    return render_template('chat.html', messages_array=messages_array, chatID=chatID)
 
 @app.route("/chat", methods = ["GET","POST"]) 
 def chat_general():
