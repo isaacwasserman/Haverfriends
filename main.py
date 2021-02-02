@@ -9,5 +9,17 @@ def home():
 def chat(): 
     return render_template('chat.html')  
 
+@app.route("/chat_general") 
+def chat_general(): 
+    return render_template("chat_general.html")
+
+@app.route("/login") 
+def login(): 
+    return render_template("login.html")
+
+@app.route("profile") 
+def profile(): 
+    return render_template("profile.html")
 if __name__ == '__main__': 
     app.run(debug=True)
+
