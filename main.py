@@ -33,6 +33,10 @@ def create_profile():
 def edit_profile(): 
     return render_template("edit_profile.html") 
 
+@app.route("/match-and-update")
+def match_and_update():
+    return render_template("home.html")
+
 if __name__ == '__main__': 
     app.run(debug=True) 
 
