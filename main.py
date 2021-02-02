@@ -15,7 +15,9 @@ def chat_general():
 
 @app.route("/register", methods = ["GET","POST"]) 
 def register(): 
-    return render_template("register.html")
+    if request.method == "POST": 
+        pass
+    pass 
 
 @app.route("/login", methods = ["GET","POST"]) 
 def login(): 
