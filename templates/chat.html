@@ -3,28 +3,25 @@
         <title> Chat room </title>
     </head>
     <body> 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-auth.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-firestore.js"></script>
         <script id="MainScript"> 
-        //------configuration------//
         var firebaseConfig = {
-        apiKey: "AIzaSyCe_db6Qj1jHISdWZigvlBAXzLZNzfzFKs",
-        authDomain: "haverfriends-9b932.firebaseapp.com",
-        projectId: "haverfriends-9b932",
-        storageBucket: "haverfriends-9b932.appspot.com",
-        messagingSenderId: "68391205434",
-        appId: "1:68391205434:web:48456413b5f62da16b9303",
-        measurementId: "G-Z8WYEKVQRH"
-        };
-
-        firebase.initliazeApp(firebaseConfig) 
-        let db = firebase.firestore() 
+            apiKey: "AIzaSyCe_db6Qj1jHISdWZigvlBAXzLZNzfzFKs",
+            authDomain: "haverfriends-9b932.firebaseapp.com",
+            projectId: "haverfriends-9b932",
+            storageBucket: "haverfriends-9b932.appspot.com",
+            messagingSenderId: "68391205434",
+            appId: "1:68391205434:web:48456413b5f62da16b9303",
+            measurementId: "G-Z8WYEKVQRH"
+          };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig) 
+        let db = firebase.firestore(); 
         
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  firebase.analytics();
         </script>
         <div> Welcome to chat! </div>
         <div id="message-display"> </div>
