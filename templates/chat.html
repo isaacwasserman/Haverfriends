@@ -20,9 +20,18 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig) 
         let db = firebase.firestore(); 
-        
+        const chatID = '{{ chatID }}'
+        $('#send').on('click', function() {
+            var messages = db.collection('chats').doc(chatID)
+            messages.update({ 
+                "messages": admin.firestore.FieldValue.arrayUnion({ 
+                    // map
+                })
+            })
+        });
 
         </script>
+
         <div> Welcome to chat! </div>
         <div id="message-display"> 
         {% for message in messages_array %}
