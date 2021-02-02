@@ -22,7 +22,7 @@ def chat(chatID):
     messages_array=[] 
     for message in messages: 
         #two tasks remaining: need to convert Firestore time object to Python string and 
-        # get sender's name from sender ID. For now, use senderID 
+        # get sender's name from sender ID. For now, use senderID in place of sender name 
         sender=message['senderID'] 
         complete_msg= sender + ": " + message['text']
         messages_array.append(complete_msg) 
