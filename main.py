@@ -13,6 +13,10 @@ def chat():
 def chat_general(): 
     return render_template("chat_general.html")
 
+@app.route("/register") 
+def register(): 
+    return render_template("register.html")
+
 @app.route("/login") 
 def login(): 
     return render_template("login.html")
@@ -28,7 +32,7 @@ def create_profile():
 @app.route("/edit-profile")
 def edit_profile(): 
     return render_template("edit_profile.html") 
-    
+
 if __name__ == '__main__': 
     app.run(debug=True) 
 
