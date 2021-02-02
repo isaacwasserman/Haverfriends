@@ -18,14 +18,16 @@ def home():
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
 def chat(chatID):
     chatID=str(chatID)
-    chat_log= db.collection('chats').document(chatID).get()
-    if chat_log.exists:
-        log=[] 
-        
-        print(f'Document data: {chat_log.to_dict()}')
-    else:
-        print(u'No such document!')
-    return render_template('chat.html')  
+    messages= db.collection('chats').document(chatID).get().to_dict()['messages'] 
+    messages_array=[] 
+    for message in messages: 
+        #two tasks remaining: need to convert Firestore time object to Python string and 
+        # get sender's name from sender ID. For now, use senderID 
+        sender=message['senderID'] 
+        complete_msg= sender + ": " + message['text']
+        messages_array.append(complete_msg) 
+    print(messages_array)
+    return render_template('chat.html', messages_array=messages_array)  
 
 @app.route("/chat", methods = ["GET","POST"]) 
 def chat_general(): 
