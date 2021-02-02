@@ -1,6 +1,6 @@
 from .firebaseInit import firebase
 from firebase_admin import firestore
-
+import time 
 db = firestore.client()
 
 def addUser(user):
