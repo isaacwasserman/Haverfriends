@@ -20,6 +20,10 @@ def home():
 
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
 def chat(chatID):
+    if request.method == "POST":
+        print('request is working')
+        msg=request.json['msg']
+        firebase_functions.sendChat(chatID, "testID", msg)
     user = authenticate(request.cookies.get('session'))
     if "redirect" in user:
         return redirect(user["redirect"])
@@ -31,8 +35,7 @@ def chat(chatID):
         # get sender's name from sender ID. For now, use senderID in place of sender name 
         sender=message['senderID'] 
         complete_msg= sender + ": " + message['text']
-        messages_array.append(complete_msg)
-    print(messages_array)
+        messages_array.append(complete_msg) 
     return render_template('chat.html', messages_array=messages_array, chatID=chatID)
 
 @app.route("/chat", methods = ["GET","POST"]) 

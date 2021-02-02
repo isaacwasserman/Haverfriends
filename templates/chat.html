@@ -3,7 +3,8 @@
         <title> Chat room </title>
     </head>
     <body> 
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-auth.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-firestore.js"></script>
@@ -20,16 +21,26 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig) 
         let db = firebase.firestore(); 
-        const chatID = '{{ chatID }}'
-        $('#send').on('click', function() {
-            var messages = db.collection('chats').doc(chatID)
-            messages.update({ 
-                "messages": admin.firestore.FieldValue.arrayUnion({ 
-                    // map
-                })
-            })
+        $(document).ready(function() { 
+            const chatID = "{{ chatID }}"
+            console.log(chatID)
+            $('#send').on('click', function() {
+                console.log("success")
+                var message = $('#message-input').val()
+                $('#message-input').val('');
+                console.log("success")
+                $.ajax({
+                        type : "POST",
+                        url : window.location.origin + "/chat/" + chatID,
+                        data: JSON.stringify({"msg": message}),
+                        dataType:"json",
+                        contentType: 'application/json;charset=UTF-8',
+                        success: function() {
+                            console.log("Success")
+                        }
+                    });
         });
-
+        });
         </script>
 
         <div> Welcome to chat! </div>
