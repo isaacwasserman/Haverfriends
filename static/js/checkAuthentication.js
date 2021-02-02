@@ -17,12 +17,6 @@ initApp = function() {
       if (user) {
         // User is signed in.
         var displayName = user.displayName;
-        var email = user.email;
-        var emailVerified = user.emailVerified;
-        var photoURL = user.photoURL;
-        var uid = user.uid;
-        var phoneNumber = user.phoneNumber;
-        var providerData = user.providerData;
         user.getIdToken().then(function(accessToken) {
 //          document.getElementById('sign-in-status').textContent = 'Signed in';
 //          document.getElementById('sign-in').textContent = 'Sign out';
