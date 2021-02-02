@@ -17,9 +17,18 @@ def chat_general():
 def login(): 
     return render_template("login.html")
 
-@app.route("profile") 
+@app.route("/profile") 
 def profile(): 
     return render_template("profile.html")
+
+@app.route("/create-profile") 
+def create_profile(): 
+    return render_template("create_profile.html")
+
+@app.route("/edit-profile")
+def edit_profile(): 
+    return render_template("edit_profile.html") 
 if __name__ == '__main__': 
-    app.run(debug=True)
+    app.run(debug=True) 
+
 
