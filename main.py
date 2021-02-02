@@ -1,4 +1,5 @@
-from flask import *   
+from flask import *
+import ""
 app = Flask(__name__)       
 
 @app.route("/")  
@@ -6,7 +7,7 @@ def home():
     return render_template('home.html')
 
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
-def chat(chatID): 
+def chat(chatID):
     return render_template('chat.html')  
 
 @app.route("/chat", methods = ["GET","POST"]) 
