@@ -26,7 +26,7 @@ def home():
     user_object = firebase_functions.getUser(user_id)
     matched_object_list = None
     if user_object.get('matched_count') is not None:
-        matched_object_list = [firebase_functions.getUser(x) for x in user_object['matched_count']]
+        matched_object_list = [firebase_functions.getUser(list(x.keys())[0]) for x in user_object['matched_count']]
     
     return render_template('home.html', matched_object_list=matched_object_list)
 
@@ -64,8 +64,9 @@ def chat(chatID):
             messages_array.append(complete_msg) 
         return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], userName=user["name"], other_info=other_info)
     else:
-        content = {'Unauthorized to access this chat conversation'}
-        return content, status.HTTP_404_NOT_FOUND
+        content = 'Unauthorized to access this chat conversation'
+        #TODO add option to show error-message in template
+        return render_template("chat_general.html", error_message=content)
 
 @app.route("/chat", methods = ["GET","POST"]) 
 def chat_general():
