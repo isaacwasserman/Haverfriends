@@ -124,6 +124,12 @@ def chat_general():
         return redirect(user["redirect"])
     return render_template("chat_general.html", showAccountStatus=True)
 
+@app.route("/register", methods = ["GET","POST"])
+def register():
+    if request.method == "POST":
+        pass
+    pass
+
 @app.route("/login", methods = ["GET","POST"])
 def login():
     if request.method == 'POST':
@@ -162,12 +168,9 @@ def profile(user_ID):
         return redirect(user["redirect"])
     uid = user["uid"]
     user_object=user_object = firebase_functions.getUser(user_ID)
-    matched_object_list = []
-    if user_object.get('matched_count') is not None:
-        matched_object_list = [firebase_functions.getUser(list(x.keys())[0]) for x in user_object['matched_count']]
     userInfo = firebase_functions.getUser(uid)
     print(userInfo)
-    return render_template("profile.html", showAccountStatus=True, user=user_object,matched_object_list=matched_object_list)
+    return render_template("profile.html", showAccountStatus=True, user=user_object)
 
 @app.route("/create-profile", methods = ["GET","POST"])
 def create_profile():
@@ -345,8 +348,8 @@ def match_users():
 
 def send_message(to_number, from_number='+17865634468', message='You have a new message on HaverFriends'):
 
-    account_sid = 'ACbac407e4d1247207799ad8328d68090a'
-    auth_token = '6aa25e415b23013459d0283a63435cb9'
+    account_sid = os.environ['TWILIO_ACCOUNT_SID']
+    auth_token = os.environ['TWILIO_AUTH_TOKEN']
     client = Client(account_sid, auth_token)
 
     message = client.messages.create(
