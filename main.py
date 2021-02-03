@@ -188,8 +188,7 @@ def edit_profile():
     return render_template("edit_profile.html", form=form, userInfo=existingUserInfo)
 
 if __name__ == '__main__':
-    ON_HEROKU = os.environ.get('ON_HEROKU')
-    if ON_HEROKU:
+    if 'PORT' in os.environ:
         # get the heroku port
         port = int(os.environ.get('PORT', 17995))  # as per OP comments default is 17995
     else:
