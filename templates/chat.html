@@ -178,9 +178,13 @@
     <div id="info-panel">
         <h1>Get to know {{otherUser.name}}:</h1>
         <ul>
-            {% for info in other_info %}
-            <li> {{info}} </li>
-            {% endfor %}
+            <li>They use {{otherUser.gender_pronouns}} pronouns.</li>
+            <li>Their bio: {{otherUser.bio}}</li>
+            <li>They're a member of the class of {{otherUser.grad_year}}.</li>
+            <li>"{{otherUser.fun_fact}}"</li>
+<!--            {% for info in other_info %}-->
+<!--            <li> {{info}} </li>-->
+<!--            {% endfor %}-->
         </ul>
 <!--        <h1>Suggested Topics:</h1>-->
         <h1>Next Steps:</h1>
