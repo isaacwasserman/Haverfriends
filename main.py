@@ -42,6 +42,9 @@ def chat(chatID):
     other_info.append("Their gender pronoun is " + other_doc['gender_pronouns']) 
     other_info.append("Their grad year is " + str(other_doc['grad_year']))
     other_info.append("One fun fact about them is " + "\"" + other_doc['fun_fact'] + "\"" )
+    other_info.append("Questions they want you to ask: ") 
+    for question in other_doc['guide_qns']: 
+        other_info.append(question)
     messages= firebase_functions.getChatConversation(chatID)['messages']
     messages_array=[] 
     for message in messages: 
