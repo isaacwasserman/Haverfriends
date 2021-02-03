@@ -35,9 +35,8 @@ def chat(chatID):
     for message in messages: 
         #two tasks remaining: need to convert Firestore time object to Python string and 
         # get sender's name from sender ID. For now, use senderID in place of sender name 
-        time = datetime.datetime.fromtimestamp(message['time']).strftime("%Y-%m-%d %I:%M:%S")
-        sender_ID=message['senderID'].replace(" ","" )
-        username=firebase_functions.getUser(sender_ID)['name']
+        time = message['time_in_string']
+        username=message['sender_name']
         complete_msg= time + " " + username + ": " + message['text']
         messages_array.append(complete_msg) 
     return render_template('chat.html', messages_array=messages_array, chatID=chatID)

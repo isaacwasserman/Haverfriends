@@ -57,9 +57,10 @@ def sendChat(chat_id, senderID, message):
     conversation.update({
         'messages': firestore.ArrayUnion([{
             'senderID':senderID,
+            'sender_name': getUser(senderID)['name'],
             'time': time.time(),
             'text': message, 
-            'time_in_string': datetime.datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d %I:%M:%S")
+            'time_in_string': datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d %I:%M:%S")
         }])
     })
     return {'senderID':senderID, 'time': time.time(), 'text': message}
