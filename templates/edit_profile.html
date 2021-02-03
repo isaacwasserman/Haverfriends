@@ -1,5 +1,7 @@
 {% extends "bootstrap/base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% include "base.html" %}
+{% block content2 %}
 {% block content %}
 <div class="container">
     <img id="profilePicPreview" style="width:300px" src="{{ userInfo['photo'] }}"/>
@@ -14,4 +16,5 @@
         }
     </script>
 </div>
+{% endblock %}
 {% endblock %}

@@ -189,6 +189,7 @@ def edit_profile():
     if "redirect" in user:
         return redirect(user["redirect"])
     uid = user["uid"]
+    user_object= firebase_functions.getUser(uid)
     existingUserInfo = firebase_functions.getUser(uid)
     class ExistingUserInfo(object):
         existingUserInfo = firebase_functions.getUser(uid)
@@ -227,7 +228,7 @@ def edit_profile():
         newInfo["questionnaire_scores"] = questionnaire_scores
         firebase_functions.editUser(uid, newInfo)
         return redirect("/profile/" + uid)
-    return render_template("edit_profile.html", form=form, userInfo=existingUserInfo, showAccountStatus=True)
+    return render_template("edit_profile.html", form=form, userInfo=existingUserInfo, showAccountStatus=True, user=user_object)
 
 @app.route("/match", methods=["GET"])
 def match_users():
