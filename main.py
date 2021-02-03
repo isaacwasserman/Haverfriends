@@ -187,7 +187,13 @@ def edit_profile():
         return redirect("/profile/" + uid)
     return render_template("edit_profile.html", form=form, userInfo=existingUserInfo)
 
-if __name__ == '__main__': 
-    app.run(debug=True) 
+if __name__ == '__main__':
+    if 'PORT' in os.environ:
+        port = os.environ['PORT']
+        print("going to run on port " + str(port))
+    else:
+        port = 5000
+        print("going to run on port " + str(port))
+    app.run(host="localhost", port=port, debug=True)
 
 
