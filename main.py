@@ -17,10 +17,9 @@ app.config['SECRET_KEY'] = os.urandom(32)
 
 Bootstrap(app)
 
-print(os.listdir())
-
 @app.route("/")
 def home():
+    print(os.listdir())
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
