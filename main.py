@@ -25,6 +25,8 @@ def home():
 
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
 def chat(chatID):
+    #TESTING: Isaac's account and my account can chat at http://127.0.0.1:5000/chat/di1Lsn3iCla2Qhzk2nByBKmfUeD3_3IjzLCVthGTrlbwkk4woYHfpZB43
+    #need a way to kick the user out if their userID is not in the chatID?
     user = authenticate(request.cookies.get('sessionToken'))
     if request.method == "POST":
         msg=request.json['msg']
@@ -32,13 +34,13 @@ def chat(chatID):
     if "redirect" in user:
         return redirect(user["redirect"])
     chatID=str(chatID)
-    other_ID= "Mt9CvYFqy74pS0s2fl9i" #fix this later, using the chatID
+    other_ID=chatID.replace("_","").replace(user['user_id'],"")
     other_doc=firebase_functions.getUser(other_ID) 
     other_info= [] 
     other_info.append("You are chatting with " + other_doc['name'])
     other_info.append("Their motto is " + "\"" + other_doc['bio'] + "\"")
     other_info.append("Their gender pronoun is " + other_doc['gender_pronouns']) 
-    other_info.append("Their grad year is " + other_doc['grad_year'])
+    other_info.append("Their grad year is " + str(other_doc['grad_year']))
     other_info.append("One fun fact about them is " + "\"" + other_doc['fun_fact'] + "\"" )
     messages= firebase_functions.getChatConversation(chatID)['messages']
     messages_array=[] 
