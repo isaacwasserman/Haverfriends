@@ -5,10 +5,11 @@ from firebase.authenticate import authenticate
 import firebase_admin
 from firebase_admin import credentials, firestore, initialize_app
 import firebase.firebaseFunctions as firebase_functions
+from matching_algorithm import matching_algo
 from datetime import datetime
 import forms
 from flask_bootstrap import Bootstrap
-
+from flask_api import status
 import datetime
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(32)
@@ -20,7 +21,6 @@ def home():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
-
     return render_template('home.html')
 
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
@@ -136,6 +136,86 @@ def edit_profile(user_ID):
     if "redirect" in user:
         return redirect(user["redirect"])
     return render_template("edit_profile.html") 
+
+@app.route("/match", methods=["GET"])
+def match_users():
+    user_id = authenticate(request.cookies.get('sessionToken'))['user_id']
+    if user_id == "di1Lsn3iCla2Qhzk2nByBKmfUeD3":
+
+        all_users = firebase_functions.getAllUsers()
+
+        # Remove chats that were never used in the previous match and clear matches that were made in the 
+        # previous match cycle from matched_count
+
+        for user_id, user_details in all_users.items():
+            if user_details.get('matched_count') is None or user_details['matched_count'] == []:
+                continue
+            else:
+                matches = user_details['matched_count']
+                for match in matches:
+                    partner_id = list(match.keys())[0]
+                    chat_id = list(match.values())[0]
+                    chat = firebase_functions.getChatConversation(chat_id)
+                    if chat is not None:
+                        if len(chat['messages']) > 1:
+                            if user_details.get('active_chat_partners') is None:
+                                firebase_functions.editUser(user_id,{
+                                    "active_chat_partners": [partner_id]
+                                })
+                            else:
+                                new_chat_partners = user_details['active_chat_partners'].copy()
+                                new_chat_partners.append(partner_id)
+                                firebase_functions.editUser(user_id,{
+                                    "active_chat_partners": new_chat_partners
+                                })
+                        else:
+                            firebase_functions.deleteChatConversation(chat_id)
+                firebase_functions.editUser(user_id,{
+                    "matched_count": []
+                })
+
+        # Matching algorithm
+
+        matched_dict, unmatched_group = matching_algo(all_users)
+
+        # Add new match to the different users
+        for key, value in matched_dict.items():
+            key_user = firebase_functions.getUser(key)
+            if key_user.get('matched_count') is None:
+
+                firebase_functions.editUser(key_user['uid'],{
+                    "matched_count": [{value[0]: value[1]}]
+                })
+            else:
+                new_matched_count = key_user['matched_count'].copy()
+                new_matched_count.append({value[0]: value[1]})
+                firebase_functions.editUser(key_user['uid'],{
+                    "matched_count": new_matched_count
+                })
+
+            value_user = firebase_functions.getUser(value[0])
+            if value_user.get('matched_count') is None:
+                firebase_functions.editUser(value_user['uid'],{
+                    "matched_count": [{key: value[1]}]
+                })
+            else:
+                new_matched_count = value_user['matched_count'].copy()
+                new_matched_count.append({key: value[1]})
+                firebase_functions.editUser(value_user['uid'],{
+                    "matched_count": new_matched_count
+                })
+
+        # Add empty list to the users with no matches
+        for unmatched_user in unmatched_group:
+            firebase_functions.editUser(unmatched_user[0],{
+                    "matched_count": []
+            })
+
+        content = {'matching done': 'chats that were never initiated are removed'}
+        return content, status.HTTP_200_OK 
+    else:
+        content = {'please move along': 'nothing to see here'}
+        return content, status.HTTP_404_NOT_FOUND  
 
 if __name__ == '__main__': 
     app.run(debug=True) 

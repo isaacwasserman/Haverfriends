@@ -22,7 +22,7 @@ def addUser(user):
         'questionnaire_scores': [],
         'notification_settings': {},
         'active_chat_partners': [],
-        'match_count': 0
+        'matched_count': 0
     })
     return users.document(user["uid"]).get().to_dict()
 
@@ -34,6 +34,13 @@ def editUser(uid, newInfo):
 def getUser(uid):
     user = db.collection('users').document(uid)
     return user.get().to_dict()
+
+def getAllUsers():
+    users = db.collection('users').stream()
+    users_dict = dict()
+    for user in users:
+        users_dict[user.id] = user.to_dict()
+    return users_dict
 
 def uploadProfilePic(uid, tempPath):
     extension = tempPath.split(".")[-1]
@@ -61,6 +68,9 @@ def addChatConversation(userOneID, userTwoID):
 def getChatConversation(chat_id):
     conversation = db.collection('chats').document(chat_id)
     return conversation.get().to_dict()
+
+def deleteChatConversation(chat_id):
+    db.collection('chats').document(chat_id).delete()
 
 def sendChat(chat_id, senderID, message):
     conversation = db.collection('chats').document(chat_id)
