@@ -198,6 +198,7 @@ def edit_profile():
         pronouns = existingUserInfo["gender_pronouns"]
         classYear = existingUserInfo["grad_year"]
         funFact = existingUserInfo["fun_fact"]
+        wantMatch = existingUserInfo["want_match"]
         guideQuestionOne = existingUserInfo["guide_qns"][0] if len(existingUserInfo["guide_qns"]) > 0 else ""
         guideQuestionTwo = existingUserInfo["guide_qns"][1] if len(existingUserInfo["guide_qns"]) > 1 else ""
         guideQuestionThree = existingUserInfo["guide_qns"][2] if len(existingUserInfo["guide_qns"]) > 2 else ""
@@ -222,6 +223,7 @@ def edit_profile():
         # Add values to update
         newInfo["gender_pronouns"] = form.pronouns.data
         newInfo["grad_year"] = form.classYear.data
+        newInfo["want_match"] = form.wantMatch.data
         newInfo["fun_fact"] = form.funFact.data
         newInfo["fun_fact"] = form.funFact.data
         newInfo["guide_qns"] = guide_qns
