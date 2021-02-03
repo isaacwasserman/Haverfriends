@@ -190,9 +190,9 @@ def edit_profile():
 if __name__ == '__main__':
     if 'PORT' in os.environ:
         # get the heroku port
-        port = int(os.environ.get('PORT', 17995))  # as per OP comments default is 17995
+        port = int(os.environ.get('PORT', 5000))
     else:
         port = 5000
-    app.run(port=port, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=True)
 
 
