@@ -1,10 +1,9 @@
-{% extends "bootstrap/base.html" %}
+{% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
-{% include "base.html" %}
-{% block content2 %}
 {% block content %}
-<div class="container">
-    <img id="profilePicPreview" style="width:300px" src="{{ userInfo['photo'] }}"/>
+<link rel="stylesheet" href="{{url_for('static', filename='css/form.css')}}"/>
+<div class="container" style="width: 600px; margin: 30px auto;">
+    <img id="profilePicPreview" style="width:300px; margin: 20px auto; display: block" src="{{ userInfo['photo'] }}"/>
     {{ wtf.quick_form(form) }}
     <script>
         document.querySelector("input#profilePic").onchange = function(){
@@ -17,5 +16,4 @@
         }
     </script>
 </div>
-{% endblock %}
 {% endblock %}
