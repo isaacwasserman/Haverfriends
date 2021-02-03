@@ -5,11 +5,13 @@ from firebase.authenticate import authenticate
 import firebase_admin
 from firebase_admin import credentials, firestore, initialize_app
 import firebase.firebaseFunctions as firebase_functions
+from matching_algorithm import matching_algo
 from datetime import datetime
 import forms
 from flask_bootstrap import Bootstrap
-
+from flask_api import status
 import datetime
+import random
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(32)
 
@@ -20,9 +22,13 @@ def home():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
-    uid = user["uid"]
-    userInfo = firebase_functions.getUser(uid)
-    return render_template('home.html', user=userInfo, showAccountStatus=True)
+    user_id = user["uid"]
+    user_object = firebase_functions.getUser(user_id)
+    matched_object_list = None
+    if user_object.get('matched_count') is not None:
+        matched_object_list = [firebase_functions.getUser(x) for x in user_object['matched_count']]
+
+    return render_template('home.html', user=user_object, matched_object_list=matched_object_list, showAccountStatus=True)
 
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
 def chat(chatID):
@@ -30,32 +36,36 @@ def chat(chatID):
     #need a way to kick the user out if their userID is not in the chatID?
     #remember to always iniatialize one message in chatID['messages'] array for the chat to work
     user = authenticate(request.cookies.get('sessionToken'))
-    if request.method == "POST":
-        msg=request.json['msg']
-        firebase_functions.sendChat(chatID, user['user_id'], msg)
     if "redirect" in user:
         return redirect(user["redirect"])
-    chatID=str(chatID)
-    other_ID=chatID.replace("_","").replace(user['user_id'],"")
-    userInfo = firebase_functions.getUser(user['uid'])
-    other_doc=firebase_functions.getUser(other_ID) 
-    other_info= [] 
-    other_info.append("You are chatting with " + other_doc['name'])
-    other_info.append("Their motto is " + "\"" + other_doc['bio'] + "\"")
-    other_info.append("Their gender pronoun is " + other_doc['gender_pronouns']) 
-    other_info.append("Their grad year is " + str(other_doc['grad_year']))
-    other_info.append("One fun fact about them is " + "\"" + other_doc['fun_fact'] + "\"" )
-    other_info.append("Questions they want you to ask: ")
-    for question in other_doc['guide_qns']:
-        other_info.append("\"" + question + "\"")
-    messages= firebase_functions.getChatConversation(chatID)['messages']
-    messages_array=[] 
-    for message in messages:
-        time = message['time_in_string']
-        username=message['sender_name']
-        complete_msg= time + " " + username + ": " + message['text']
-        messages_array.append(complete_msg) 
-    return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], user=userInfo, otherUser=other_doc, userName=user["name"], other_info=other_info)
+    uid = user['uid']
+    if '_' in chatID and uid in chatID.split('_'):
+        if request.method == "POST":
+            msg=request.json['msg']
+            firebase_functions.sendChat(chatID, user['user_id'], msg)
+
+        chatID=str(chatID)
+        other_ID=chatID.replace("_","").replace(user['user_id'],"")
+        other_doc=firebase_functions.getUser(other_ID)
+        other_info= []
+        other_info.append("You are chatting with " + other_doc['name'])
+        other_info.append("Their motto is " + "\"" + other_doc['bio'] + "\"")
+        other_info.append("Their gender pronoun is " + other_doc['gender_pronouns'])
+        other_info.append("Their grad year is " + str(other_doc['grad_year']))
+        other_info.append("One fun fact about them is " + "\"" + other_doc['fun_fact'] + "\"" )
+        other_info.append("Here is something you can ask to kickstart the conversation: ")
+        other_info.append("\"" + random.choice(other_doc['guide_qns']) + "\"")
+        messages= firebase_functions.getChatConversation(chatID)['messages']
+        messages_array=[]
+        for message in messages:
+            time = message['time_in_string']
+            username=message['sender_name']
+            complete_msg= time + " " + username + ": " + message['text']
+            messages_array.append(complete_msg)
+        return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], user=userInfo, otherUser=other_doc, userName=user["name"], other_info=other_info)
+    else:
+        content = {'Unauthorized to access this chat conversation'}
+        return content, status.HTTP_404_NOT_FOUND
 
 @app.route("/chat", methods = ["GET","POST"]) 
 def chat_general():
@@ -194,6 +204,86 @@ def edit_profile():
         firebase_functions.editUser(uid, newInfo)
         return redirect("/profile/" + uid)
     return render_template("edit_profile.html", form=form, userInfo=existingUserInfo)
+
+@app.route("/match", methods=["GET"])
+def match_users():
+    user_id = authenticate(request.cookies.get('sessionToken'))['user_id']
+    if user_id == "di1Lsn3iCla2Qhzk2nByBKmfUeD3":
+
+        all_users = firebase_functions.getAllUsers()
+
+        # Remove chats that were never used in the previous match and clear matches that were made in the
+        # previous match cycle from matched_count
+
+        for user_id, user_details in all_users.items():
+            if user_details.get('matched_count') is None or user_details['matched_count'] == []:
+                continue
+            else:
+                matches = user_details['matched_count']
+                for match in matches:
+                    partner_id = list(match.keys())[0]
+                    chat_id = list(match.values())[0]
+                    chat = firebase_functions.getChatConversation(chat_id)
+                    if chat is not None:
+                        if len(chat['messages']) > 1:
+                            if user_details.get('active_chat_partners') is None:
+                                firebase_functions.editUser(user_id,{
+                                    "active_chat_partners": [partner_id]
+                                })
+                            else:
+                                new_chat_partners = user_details['active_chat_partners'].copy()
+                                new_chat_partners.append(partner_id)
+                                firebase_functions.editUser(user_id,{
+                                    "active_chat_partners": new_chat_partners
+                                })
+                        else:
+                            firebase_functions.deleteChatConversation(chat_id)
+                firebase_functions.editUser(user_id,{
+                    "matched_count": []
+                })
+
+        # Matching algorithm
+
+        matched_dict, unmatched_group = matching_algo(all_users)
+
+        # Add new match to the different users
+        for key, value in matched_dict.items():
+            key_user = firebase_functions.getUser(key)
+            if key_user.get('matched_count') is None:
+
+                firebase_functions.editUser(key_user['uid'],{
+                    "matched_count": [{value[0]: value[1]}]
+                })
+            else:
+                new_matched_count = key_user['matched_count'].copy()
+                new_matched_count.append({value[0]: value[1]})
+                firebase_functions.editUser(key_user['uid'],{
+                    "matched_count": new_matched_count
+                })
+
+            value_user = firebase_functions.getUser(value[0])
+            if value_user.get('matched_count') is None:
+                firebase_functions.editUser(value_user['uid'],{
+                    "matched_count": [{key: value[1]}]
+                })
+            else:
+                new_matched_count = value_user['matched_count'].copy()
+                new_matched_count.append({key: value[1]})
+                firebase_functions.editUser(value_user['uid'],{
+                    "matched_count": new_matched_count
+                })
+
+        # Add empty list to the users with no matches
+        for unmatched_user in unmatched_group:
+            firebase_functions.editUser(unmatched_user[0],{
+                    "matched_count": []
+            })
+
+        content = {'matching done': 'chats that were never initiated are removed'}
+        return content, status.HTTP_200_OK
+    else:
+        content = {'please move along': 'nothing to see here'}
+        return content, status.HTTP_404_NOT_FOUND
 
 if __name__ == '__main__':
     if 'PORT' in os.environ:
