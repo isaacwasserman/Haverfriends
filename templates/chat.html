@@ -40,16 +40,34 @@
                         }
                     });
         });
+        var initState = true;
+        
+        db.collection("chats").doc(chatID).onSnapshot(function(doc) {
+            if (initState) { 
+                initState=false
+            }
+            else { 
+            msg_doc= doc.data()['messages'][doc.data()['messages'].length-1];
+            complete_message=msg_doc['time_in_string'] + " " + msg_doc['sender_name'] + ": " + msg_doc['text']
+            $("#message-display").append(complete_message)
+            $("#message-display").append('<br>')
+            }
+        });
         });
         </script>
 
         <div> Welcome to chat! </div>
-        <div id="message-display"> 
+        <div style = "overflow-y: scroll; height: 400px; width: 600px" id="message-display" white-space: pre-line> 
         {% for message in messages_array %}
         <p> {{message}} </p>
         {% endfor %}
         </div>
         <input type="text" id="message-input">
         <button id="send"> Send </button>
+        <div> 
+        {% for info in other_info %}
+        <p> {{info}} </p>
+        {% endfor %}
+        </div>
     </body>
 </html>
