@@ -19,6 +19,7 @@ Bootstrap(app)
 
 @app.route("/")
 def home():
+    print(os.listdir())
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
@@ -28,7 +29,13 @@ def home():
     if user_object.get('matched_count') is not None:
         matched_object_list = [firebase_functions.getUser(list(x.keys())[0]) for x in user_object['matched_count']]
     # Get conversations
-    return render_template('home.html', user=user_object, matched_object_list=matched_object_list)
+    involvedConversations = firebase_functions.getInvolvedConversations(user_id)
+    for conversation in involvedConversations:
+        otherUserID = conversation["chat_id"].replace(user_id, "").replace("_","")
+        otherUser = firebase_functions.getUser(otherUserID)
+        conversation["otherUser"] = otherUser
+
+    return render_template('home.html', user=user_object, matched_object_list=matched_object_list, involvedConversations=involvedConversations, showAccountStatus=True)
 
 @app.route("/newchat/<uidOne>/<uidTwo>")
 def newchat(uidOne, uidTwo):
@@ -36,6 +43,8 @@ def newchat(uidOne, uidTwo):
     if firebase_functions.getChatConversation(sortedUIDS[0] + "_" + sortedUIDS[1]) is None:
         conversation = firebase_functions.addChatConversation(uidOne, uidTwo)
         chatID = conversation["chat_id"]
+    else:
+        chatID = firebase_functions.getChatConversation(sortedUIDS[0] + "_" + sortedUIDS[1])["chat_id"]
     return redirect("/chat/" + chatID)
 
 
@@ -59,10 +68,14 @@ def chat(chatID):
         other_doc=firebase_functions.getUser(other_ID)
         other_info= []
         other_info.append("You are chatting with " + other_doc['name'])
-        other_info.append("Their motto is " + "\"" + other_doc['bio'] + "\"")
-        other_info.append("Their gender pronoun is " + other_doc['gender_pronouns'])
-        other_info.append("Their grad year is " + str(other_doc['grad_year']))
-        other_info.append("One fun fact about them is " + "\"" + other_doc['fun_fact'] + "\"" )
+        if 'bio' in other_doc:
+            other_info.append("Their motto is " + "\"" + other_doc['bio'] + "\"")
+        if 'gender_pronouns' in other_doc:
+            other_info.append("Their gender pronoun is " + other_doc['gender_pronouns'])
+        if 'grad_year' in other_doc:
+            other_info.append("Their grad year is " + str(other_doc['grad_year']))
+        if 'fun_fact' in other_doc:
+            other_info.append("One fun fact about them is " + "\"" + other_doc['fun_fact'] + "\"" )
         other_info.append("Here is something you can ask to kickstart the conversation: ")
         other_info.append("\"" + random.choice(other_doc['guide_qns']) + "\"")
         messages= firebase_functions.getChatConversation(chatID)['messages']
@@ -72,18 +85,18 @@ def chat(chatID):
             username=message['sender_name']
             complete_msg= time + " " + username + ": " + message['text']
             messages_array.append(complete_msg)
-        return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], user=userInfo, otherUser=other_doc, userName=user["name"], other_info=other_info)
+        return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], user=userInfo, otherUser=other_doc, userName=user["name"], other_info=other_info, showAccountStatus=True)
     else:
         content = 'Unauthorized to access this chat conversation'
         #TODO add option to show error-message in template
-        return render_template("chat_general.html", error_message=content)
+        return render_template("chat_general.html", error_message=content, showAccountStatus=True)
 
 @app.route("/chat", methods = ["GET","POST"])
 def chat_general():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
-    return render_template("chat_general.html")
+    return render_template("chat_general.html", showAccountStatus=True)
 
 @app.route("/register", methods = ["GET","POST"])
 def register():
@@ -128,9 +141,10 @@ def profile(user_ID):
     if "redirect" in user:
         return redirect(user["redirect"])
     uid = user["uid"]
+    user_object=user_object = firebase_functions.getUser(user_ID)
     userInfo = firebase_functions.getUser(uid)
     print(userInfo)
-    return render_template("profile.html")
+    return render_template("profile.html", showAccountStatus=True, user=user_object)
 
 @app.route("/create-profile", methods = ["GET","POST"])
 def create_profile():
@@ -142,8 +156,8 @@ def create_profile():
         uid = user["uid"]
         # Upload Profile Pic
         if form.profilePic.data is not None:
-            form.profilePic.data.save("tempStorage/" + form.profilePic.data.filename)
-            print(firebase_functions.uploadProfilePic(uid, "tempStorage/" + form.profilePic.data.filename))
+            form.profilePic.data.save(os.path.join("tempStorage",form.profilePic.data.filename))
+            print(firebase_functions.uploadProfilePic(uid, os.path.join("tempStorage",form.profilePic.data.filename)))
         # Edit User Profile
         print(form.data)
         guide_qns = []
@@ -176,6 +190,7 @@ def edit_profile():
     if "redirect" in user:
         return redirect(user["redirect"])
     uid = user["uid"]
+    user_object= firebase_functions.getUser(uid)
     existingUserInfo = firebase_functions.getUser(uid)
     class ExistingUserInfo(object):
         existingUserInfo = firebase_functions.getUser(uid)
@@ -196,8 +211,8 @@ def edit_profile():
     form = forms.EditProfileForm(obj=ExistingUserInfo)
     if form.validate_on_submit():
         if form.profilePic.data is not None and form.profilePic.data != "":
-            form.profilePic.data.save("tempStorage/" + form.profilePic.data.filename)
-            print(firebase_functions.uploadProfilePic(uid, "tempStorage/" + form.profilePic.data.filename))
+            form.profilePic.data.save(os.path.join("tempStorage",form.profilePic.data.filename))
+            print(firebase_functions.uploadProfilePic(uid, os.path.join("tempStorage",form.profilePic.data.filename)))
         # Edit User Profile
         guide_qns = []
         for qn in [form.guideQuestionOne.data,form.guideQuestionTwo.data,form.guideQuestionThree.data]:
@@ -216,7 +231,7 @@ def edit_profile():
         newInfo["questionnaire_scores"] = questionnaire_scores
         firebase_functions.editUser(uid, newInfo)
         return redirect("/profile/" + uid)
-    return render_template("edit_profile.html", form=form, userInfo=existingUserInfo)
+    return render_template("edit_profile.html", form=form, userInfo=existingUserInfo, showAccountStatus=True, user=user_object)
 
 @app.route("/match", methods=["GET"])
 def match_users():

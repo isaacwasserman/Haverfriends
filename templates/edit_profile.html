@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% include "base.html" %}
+{% block content2 %}
 {% block content %}
 <link rel="stylesheet" href="{{url_for('static', filename='css/form.css')}}"/>
 <div class="container"></div>
@@ -10,9 +12,11 @@
             var reader = new FileReader()
             reader.onload = function(e) {
               document.querySelector("#profilePicPreview").src = e.target.result
+              document.querySelector("#profilePicBase64").value = e.target.result
             }
             reader.readAsDataURL(document.querySelector("input#profilePic").files[0])
         }
     </script>
 </div>
+{% endblock %}
 {% endblock %}

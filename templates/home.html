@@ -48,22 +48,16 @@
   <div id="chatContainer">
     <h2>Your Open Chats:</h2>
     <div id="chats">
-      <div class="chatRow">
-        <div class="chatProfilePic"></div>
+      {% for conversation in involvedConversations %}
+      <a class="chatRow" href="/chat/{{conversation.chat_id}}">
+        <div class="chatProfilePic" style="background-image: url({{conversation.otherUser.photo}})"></div>
         <div class="chatMiddle">
-          <div class="chatName">Isaac Wasserman</div>
-          <div class="chatLastMessage">This is a recent message from a person.</div>
+          <div class="chatName">{{conversation.otherUser.name}}</div>
+          <div class="chatLastMessage">{{conversation.messages[-1].text}}</div>
         </div>
-        <!-- <div class="chatLastMessageTime">timeSince(toDateTime(1612320143.1260731))</div> -->
-      </div>
-      <div class="chatRow">
-        <div class="chatProfilePic"></div>
-        <div class="chatMiddle">
-          <div class="chatName">Isaac Wasserman</div>
-          <div class="chatLastMessage">This is a recent message from a person.</div>
-        </div>
-        <!-- <div class="chatLastMessageTime">timeSince(toDateTime(1612320143.1260731))</div> -->
-      </div>
+<!--         <div class="chatLastMessageTime">timeSince(toDateTime({{conversation.messages[-1].time}}))</div>-->
+      </a>
+      {% endfor %}
     </div>
   </div>
 </div>
