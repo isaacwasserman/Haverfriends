@@ -64,5 +64,10 @@
         </div>
         <input type="text" id="message-input">
         <button id="send"> Send </button>
+        <div> 
+        {% for info in other_info %}
+        <p> {{info}} </p>
+        {% endfor %}
+        </div>
     </body>
 </html>
