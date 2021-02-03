@@ -1,6 +1,4 @@
 import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import auth
-from firebase_admin import exceptions
+from firebase_admin import credentials, auth, exceptions, storage, firestore
 cred = credentials.Certificate("private-key.json")
-firebase = firebase_admin.initialize_app(cred)
+firebase = firebase_admin.initialize_app(cred, {"storageBucket": "haverfriends-9b932.appspot.com"})

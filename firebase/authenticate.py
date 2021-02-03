@@ -3,7 +3,6 @@ from .firebaseFunctions import getUser
 from .firebaseFunctions import addUser
 
 def authenticate(sessionCookie):
-    print(sessionCookie)
     if sessionCookie is None:
         return {"redirect": "/login"}
     else:
@@ -19,8 +18,10 @@ def authenticate(sessionCookie):
                 addUser(userInfo)
             elif len(getUser(decoded_claims["user_id"])["guide_qns"]) == 0:
                 print(getUser(decoded_claims["user_id"])["guide_qns"])
-                return {"redirect": "/create-profile"}
-            return decoded_claims
+                return {"redirect": "/create-profile", "uid": decoded_claims["user_id"]}
+            else:
+                return decoded_claims
         except auth.InvalidSessionCookieError:
+            print("here")
             # Session cookie is invalid, expired or revoked. Force user to login.
             return {"redirect": "/login"}

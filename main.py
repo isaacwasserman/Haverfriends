@@ -1,21 +1,23 @@
 import os
 from flask import *
-from firebase.firebaseInit import auth
-from firebase.firebaseInit import exceptions
+from firebase.firebaseInit import auth, exceptions, storage
 from firebase.authenticate import authenticate
 import firebase_admin
 from firebase_admin import credentials, firestore, initialize_app
 import firebase.firebaseFunctions as firebase_functions
 from datetime import datetime
 import forms
+from flask_bootstrap import Bootstrap
 
 import datetime
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(32)
 
+Bootstrap(app)
+
 @app.route("/")  
 def home():
-    user = authenticate(request.cookies.get('session'))
+    user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
 
@@ -23,7 +25,7 @@ def home():
 
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
 def chat(chatID):
-    user = authenticate(request.cookies.get('session'))
+    user = authenticate(request.cookies.get('sessionToken'))
     if request.method == "POST":
         print('request is working')
         msg=request.json['msg']
@@ -45,7 +47,7 @@ def chat(chatID):
 
 @app.route("/chat", methods = ["GET","POST"]) 
 def chat_general():
-    user = authenticate(request.cookies.get('session'))
+    user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
     return render_template("chat_general.html")
@@ -74,7 +76,7 @@ def login():
             # Set cookie policy for session cookie.
             expires = datetime.datetime.now() + expires_in
             response = make_response({"success": True})
-            response.set_cookie('session', session_cookie, expires=expires, httponly=True, secure=False)
+            response.set_cookie('sessionToken', session_cookie, expires=expires, httponly=False, secure=False)
         except exceptions.FirebaseError:
             return flask.abort(401, 'Failed to create a session cookie')
     else:
@@ -83,26 +85,44 @@ def login():
 
 @app.route("/profile/<user_ID>", methods = ["GET","POST"]) 
 def profile(user_ID):
-    user = authenticate(request.cookies.get('session'))
+    user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
     return render_template("profile.html")
 
 @app.route("/create-profile", methods = ["GET","POST"])
 def create_profile():
-    user = authenticate(request.cookies.get('session'))
+    user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user and user["redirect"] != "/create-profile":
         return redirect(user["redirect"])
     form = forms.CreateProfileForm()
     if form.validate_on_submit():
+        uid = user["uid"]
+        # Upload Profile Pic
+        if form.profilePic.data is not None:
+            form.profilePic.data.save("tempStorage/" + form.profilePic.data.filename)
+            print(firebase_functions.uploadProfilePic(uid, "tempStorage/" + form.profilePic.data.filename))
+        # Edit User Profile
+        print(form.data)
+        guide_qns = []
+        for qn in [form.guideQuestionOne.data,form.guideQuestionTwo.data,form.guideQuestionThree.data]:
+            if qn != "":
+                guide_qns.append(qn)
+        questionnaire_scores = [form.sportsQuestion.data, form.readingQuestion.data, form.cookingQuestion.data, form.DCFoodQuestion.data, form.MoviesVBoardGamesQuestion.data]
+        firebase_functions.editUser(uid,{
+            "gender_pronouns": form.pronouns.data,
+            "grad_year": form.classYear.data,
+            "fun_fact": form.funFact.data,
+            "guide_qns": guide_qns,
+            "bio": form.bio.data,
+            "questionnaire_scores": questionnaire_scores
+        })
         return "success"
-    else:
-        return "unable to validate form"
-    return render_template("create_profile.html")
+    return render_template("create_profile.html", form=form)
 
 @app.route("/edit-profile/<user_ID>", methods = ["GET","POST"])
 def edit_profile(user_ID):
-    user = authenticate(request.cookies.get('session'))
+    user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
     return render_template("edit_profile.html") 

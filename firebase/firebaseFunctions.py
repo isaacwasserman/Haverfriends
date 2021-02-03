@@ -1,7 +1,8 @@
-from .firebaseInit import firebase
-from firebase_admin import firestore
-import time 
+from .firebaseInit import firebase, firestore, storage
+import time
+import os
 db = firestore.client()
+bucket = storage.bucket()
 
 def addUser(user):
     users = db.collection('users')
@@ -31,6 +32,15 @@ def editUser(uid, newInfo):
 def getUser(uid):
     user = db.collection('users').document(uid)
     return user.get().to_dict()
+
+def uploadProfilePic(uid, tempPath):
+    extension = tempPath.split(".")[-1]
+    blob = bucket.blob('profilePics/' + uid + '.' + extension)
+    blob.upload_from_filename(tempPath)
+    if os.path.exists(tempPath):
+        os.remove(tempPath)
+    editUser(uid, {"photo": blob.public_url})
+    return blob.public_url
 
 def addChatConversation(userOneID, userTwoID):
     chats = db.collection('chats')
