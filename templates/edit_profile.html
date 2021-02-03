@@ -1,7 +1,8 @@
-{% extends "bootstrap/base.html" %}
+{% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block content %}
-<div class="container">
+<link rel="stylesheet" href="{{url_for('static', filename='css/form.css')}}"/>
+<div class="container"></div>
     <img id="profilePicPreview" style="width:300px" src="{{ userInfo['photo'] }}"/>
     {{ wtf.quick_form(form) }}
     <script>
