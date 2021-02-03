@@ -21,6 +21,7 @@ class CreateProfileForm(FlaskForm):
     cookingQuestion = IntegerRangeField('How much do you enjoy cooking? (1 to 5)', render_kw={"min": "1", "max": "5"})
     DCFoodQuestion = IntegerRangeField('How much do you enjoy food from the DC? (1 to 5)', render_kw={"min": "1", "max": "5"})
     MoviesVBoardGamesQuestion = IntegerRangeField('How would you compare your interest in movies to your interest in board games? (1=Movies are way better, 2=Movies are slightly better, 3=They\'re equally interesting, 4=Board games are slightly better, 5=Board games are way better)', render_kw={"min": "1", "max": "5"})
+    phoneNotification = StringField('Enter your phone number if you want to receive message notifictaions')
     submit = SubmitField()
 
 class EditProfileForm(FlaskForm):
@@ -39,4 +40,5 @@ class EditProfileForm(FlaskForm):
     cookingQuestion = IntegerRangeField('How much do you enjoy cooking? (1 to 5)', render_kw={"min": "1", "max": "5"})
     DCFoodQuestion = IntegerRangeField('How much do you enjoy food from the DC? (1 to 5)', render_kw={"min": "1", "max": "5"})
     MoviesVBoardGamesQuestion = IntegerRangeField('How would you compare your interest in movies to your interest in board games? (1=Movies are way better, 2=Movies are slightly better, 3=They\'re equally interesting, 4=Board games are slightly better, 5=Board games are way better)', render_kw={"min": "1", "max": "5"})
+    phoneNotification = StringField('Enter your phone number (+1XXXXXXXXXX) if you want to receive message notifictaions')
     submit = SubmitField()

@@ -17,6 +17,17 @@ from twilio.rest import Client
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(32)
+
+app.config.update(dict(
+    DEBUG = True,
+    MAIL_SERVER = 'smtp.gmail.com',
+    MAIL_PORT = 587,
+    MAIL_USE_TLS = True,
+    MAIL_USE_SSL = False,
+    MAIL_USERNAME = '',
+    MAIL_PASSWORD = '',
+))
+
 mail = Mail(app)
 Bootstrap(app)
 
@@ -60,11 +71,22 @@ def chat(chatID):
     if "redirect" in user:
         return redirect(user["redirect"])
     uid = user['uid']
+    print('uid', uid)
+    print('_' in chatID and uid in chatID.split('_'), request.method)
     if '_' in chatID and uid in chatID.split('_'):
         if request.method == "POST":
-            msg=request.json['msg']
-            send_message('+18563322539')
-            firebase_functions.sendChat(chatID, user['user_id'], msg)
+            other_user_id = chatID.split('_')[0] if chatID.split('_')[1] == uid else chatID.split('_')[1]
+            other_user = firebase_functions.getUser(other_user_id)
+            if other_user['notification_settings'].get('phone') is not None:
+                send_message(other_user['notification_settings']['phone'])
+
+            # msg = Message("Hello",
+            #       sender="stan1@haverford.edu",
+            #       recipients=["samueltan97@hotmail.com"])
+
+            # mail.send(msg)
+
+            # firebase_functions.sendChat(chatID, user['user_id'], msg)
 
         chatID=str(chatID)
         other_ID=chatID.replace("_","").replace(user['user_id'],"")
@@ -183,6 +205,8 @@ def create_profile():
             newInfo["guide_qns"] = guide_qns
         if form.bio.data != "":
             newInfo["bio"] = form.bio.data
+        if form.phoneNotification.data != "":
+            newInfo["notification_settings"] = {'phone': form.phoneNotification.data}
         newInfo["questionnaire_scores"] = questionnaire_scores
         firebase_functions.editUser(uid, newInfo)
         return redirect("/profile/" + uid)
@@ -212,6 +236,7 @@ def edit_profile():
         cookingQuestion = existingUserInfo["questionnaire_scores"][2]
         DCFoodQuestion = existingUserInfo["questionnaire_scores"][3]
         MoviesVBoardGamesQuestion = existingUserInfo["questionnaire_scores"][4]
+        phoneNotification = existingUserInfo['notification_settings']['phone'] if existingUserInfo['notification_settings'].get('phone') is not None else ''
     form = forms.EditProfileForm(obj=ExistingUserInfo)
     if form.validate_on_submit():
         if form.profilePic.data is not None and form.profilePic.data != "":
@@ -233,6 +258,10 @@ def edit_profile():
         newInfo["guide_qns"] = guide_qns
         newInfo["bio"] = form.bio.data
         newInfo["questionnaire_scores"] = questionnaire_scores
+        if form.phoneNotification.data != "":
+            newInfo["notification_settings"] = {'phone': form.phoneNotification.data}
+        else:
+            newInfo["notification_settings"] = {}
         firebase_functions.editUser(uid, newInfo)
         return redirect("/profile/" + uid)
     return render_template("edit_profile.html", form=form, userInfo=existingUserInfo, showAccountStatus=True, user=user_object)
@@ -319,10 +348,8 @@ def match_users():
 
 def send_message(to_number, from_number='+17865634468', message='You have a new message on HaverFriends'):
 
-    # account_sid = os.environ['TWILIO_ACCOUNT_SID']
     account_sid = 'ACbac407e4d1247207799ad8328d68090a'
-    # auth_token = os.environ['TWILIO_AUTH_TOKEN']
-    auth_token = '2ffa997f1542209a82cd07f77d3b86d6'
+    auth_token = '6aa25e415b23013459d0283a63435cb9'
     client = Client(account_sid, auth_token)
 
     message = client.messages.create(
@@ -330,6 +357,7 @@ def send_message(to_number, from_number='+17865634468', message='You have a new 
                                 from_=from_number,
                                 to=to_number
                             )
+    print(message.sid)
 
 if __name__ == '__main__':
     if 'PORT' in os.environ:
