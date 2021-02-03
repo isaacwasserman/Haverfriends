@@ -152,8 +152,8 @@ def create_profile():
         uid = user["uid"]
         # Upload Profile Pic
         if form.profilePic.data is not None:
-            form.profilePic.data.save("tempStorage/" + form.profilePic.data.filename)
-            print(firebase_functions.uploadProfilePic(uid, "tempStorage/" + form.profilePic.data.filename))
+            form.profilePic.data.save(os.path.join("tempStorage","form.profilePic.data.filename"))
+            print(firebase_functions.uploadProfilePic(uid, os.path.join("tempStorage","form.profilePic.data.filename")))
         # Edit User Profile
         print(form.data)
         guide_qns = []
@@ -205,8 +205,8 @@ def edit_profile():
     form = forms.EditProfileForm(obj=ExistingUserInfo)
     if form.validate_on_submit():
         if form.profilePic.data is not None and form.profilePic.data != "":
-            form.profilePic.data.save("tempStorage/" + form.profilePic.data.filename)
-            print(firebase_functions.uploadProfilePic(uid, "tempStorage/" + form.profilePic.data.filename))
+            form.profilePic.data.save(os.path.join("tempStorage","form.profilePic.data.filename"))
+            print(firebase_functions.uploadProfilePic(uid, os.path.join("tempStorage","form.profilePic.data.filename")))
         # Edit User Profile
         guide_qns = []
         for qn in [form.guideQuestionOne.data,form.guideQuestionTwo.data,form.guideQuestionThree.data]:
