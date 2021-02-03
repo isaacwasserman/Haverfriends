@@ -28,7 +28,7 @@ def home():
         return redirect(user["redirect"])
     user_id = user["uid"]
     user_object = firebase_functions.getUser(user_id)
-    matched_object_list = None
+    matched_object_list = []
     if user_object.get('matched_count') is not None:
         matched_object_list = [firebase_functions.getUser(list(x.keys())[0]) for x in user_object['matched_count']]
     # Get conversations
