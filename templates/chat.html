@@ -1,14 +1,14 @@
-<html> 
-    <head> 
+<html>
+    <head>
         <title> Chat room </title>
     </head>
-    <body> 
+    <body>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-auth.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-firestore.js"></script>
-        <script id="MainScript"> 
+        <script id="MainScript">
         var firebaseConfig = {
             apiKey: "AIzaSyCe_db6Qj1jHISdWZigvlBAXzLZNzfzFKs",
             authDomain: "haverfriends-9b932.firebaseapp.com",
@@ -19,34 +19,53 @@
             measurementId: "G-Z8WYEKVQRH"
           };
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig) 
-        let db = firebase.firestore(); 
-        $(document).ready(function() { 
+        firebase.initializeApp(firebaseConfig)
+        let db = firebase.firestore();
+
+        $(document).ready(function() {
+            var frontendSend = function(chatID, text){
+                let date = new Date()
+                let time = (new Date()).getTime() / 1000
+                let time_in_string = date.getFullYear() + "/" + ("0" + (date.getMonth()+1)).slice(-2) + "/" + ("0" + date.getDate()).slice(-2) + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+                let message = {
+                    senderID: "{{ uid }}",
+                    sender_name: "{{ userName }}",
+                    text: text,
+                    time: time,
+                    time_in_string: time_in_string
+                }
+                console.log(message)
+                let conversation = db.collection("chats").doc(chatID)
+                conversation.update({
+                   messages: firebase.firestore.FieldValue.arrayUnion(message)
+                }).then(function(){
+                  console.log("success")
+                })
+            }
             const chatID = "{{ chatID }}"
             console.log(chatID)
             $('#send').on('click', function() {
-                console.log("success")
                 var message = $('#message-input').val()
                 $('#message-input').val('');
-                console.log("success")
-                $.ajax({
-                        type : "POST",
-                        url : window.location.origin + "/chat/" + chatID,
-                        data: JSON.stringify({"msg": message}),
-                        dataType:"json",
-                        contentType: 'application/json;charset=UTF-8',
-                        success: function() {
-                            console.log("Success")
-                        }
-                    });
+                frontendSend(chatID, message)
+                // $.ajax({
+                //         type : "POST",
+                //         url : window.location.origin + "/chat/" + chatID,
+                //         data: JSON.stringify({"msg": message}),
+                //         dataType:"json",
+                //         contentType: 'application/json;charset=UTF-8',
+                //         success: function() {
+                //             console.log("Success")
+                //         }
+                //     });
         });
         var initState = true;
-        
+
         db.collection("chats").doc(chatID).onSnapshot(function(doc) {
-            if (initState) { 
+            if (initState) {
                 initState=false
             }
-            else { 
+            else {
             msg_doc= doc.data()['messages'][doc.data()['messages'].length-1];
             complete_message=msg_doc['time_in_string'] + " " + msg_doc['sender_name'] + ": " + msg_doc['text']
             $("#message-display").append(complete_message)
@@ -57,14 +76,14 @@
         </script>
 
         <div> Welcome to chat! </div>
-        <div style = "overflow-y: scroll; height: 400px; width: 600px" id="message-display" white-space: pre-line> 
+        <div style = "overflow-y: scroll; height: 400px; width: 600px" id="message-display" white-space: pre-line>
         {% for message in messages_array %}
         <p> {{message}} </p>
         {% endfor %}
         </div>
         <input type="text" id="message-input">
         <button id="send"> Send </button>
-        <div> 
+        <div>
         {% for info in other_info %}
         <p> {{info}} </p>
         {% endfor %}
