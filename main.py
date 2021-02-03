@@ -21,7 +21,13 @@ def home():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
-    return render_template('home.html')
+    user_id = user["uid"]
+    user_object = firebase_functions.getUser(user_id)
+    matched_object_list = None
+    if user_object.get('matched_count') is not None:
+        matched_object_list = [firebase_functions.getUser(x) for x in user_object['matched_count']]
+    
+    return render_template('home.html', matched_object_list=matched_object_list)
 
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
 def chat(chatID):
