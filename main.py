@@ -42,6 +42,8 @@ def newchat(uidOne, uidTwo):
     if firebase_functions.getChatConversation(sortedUIDS[0] + "_" + sortedUIDS[1]) is None:
         conversation = firebase_functions.addChatConversation(uidOne, uidTwo)
         chatID = conversation["chat_id"]
+    else:
+        chatID = firebase_functions.getChatConversation(sortedUIDS[0] + "_" + sortedUIDS[1])["chat_id"]
     return redirect("/chat/" + chatID)
 
 
