@@ -25,30 +25,30 @@ def home():
 
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
 def chat(chatID):
+    #TESTING: Isaac's account and my account can chat at http://127.0.0.1:5000/chat/di1Lsn3iCla2Qhzk2nByBKmfUeD3_3IjzLCVthGTrlbwkk4woYHfpZB43
+    #need a way to kick the user out if their userID is not in the chatID?
+    #remember to always iniatialize one message in chatID['messages'] array for the chat to work
     user = authenticate(request.cookies.get('sessionToken'))
-    #if "redirect" in user:
-    #    return redirect(user["redirect"])
     if request.method == "POST":
         msg=request.json['msg']
-        firebase_functions.sendChat(chatID, user["uid"], msg)
+        firebase_functions.sendChat(chatID, user['user_id'], msg)
+    if "redirect" in user:
+        return redirect(user["redirect"])
     chatID=str(chatID)
-    chatMembers = chatID.split("_")
-    other_ID = ""
-    for member in chatMembers:
-        if member != user["uid"]:
-            other_ID = member
-    other_doc=firebase_functions.getUser(other_ID)
+    other_ID=chatID.replace("_","").replace(user['user_id'],"")
+    other_doc=firebase_functions.getUser(other_ID) 
     other_info= [] 
     other_info.append("You are chatting with " + other_doc['name'])
     other_info.append("Their motto is " + "\"" + other_doc['bio'] + "\"")
     other_info.append("Their gender pronoun is " + other_doc['gender_pronouns']) 
     other_info.append("Their grad year is " + str(other_doc['grad_year']))
     other_info.append("One fun fact about them is " + "\"" + other_doc['fun_fact'] + "\"" )
+    other_info.append("Questions they want you to ask: ")
+    for question in other_doc['guide_qns']:
+        other_info.append("\"" + question + "\"")
     messages= firebase_functions.getChatConversation(chatID)['messages']
     messages_array=[] 
-    for message in messages: 
-        #two tasks remaining: need to convert Firestore time object to Python string and 
-        # get sender's name from sender ID. For now, use senderID in place of sender name 
+    for message in messages:
         time = message['time_in_string']
         username=message['sender_name']
         complete_msg= time + " " + username + ": " + message['text']
@@ -116,6 +116,7 @@ def create_profile():
             form.profilePic.data.save("tempStorage/" + form.profilePic.data.filename)
             print(firebase_functions.uploadProfilePic(uid, "tempStorage/" + form.profilePic.data.filename))
         # Edit User Profile
+        print(form.data)
         guide_qns = []
         for qn in [form.guideQuestionOne.data,form.guideQuestionTwo.data,form.guideQuestionThree.data]:
             if qn != "":
