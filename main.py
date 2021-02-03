@@ -102,12 +102,6 @@ def chat_general():
         return redirect(user["redirect"])
     return render_template("chat_general.html", showAccountStatus=True)
 
-@app.route("/register", methods = ["GET","POST"])
-def register():
-    if request.method == "POST":
-        pass
-    pass
-
 @app.route("/login", methods = ["GET","POST"])
 def login():
     if request.method == 'POST':
