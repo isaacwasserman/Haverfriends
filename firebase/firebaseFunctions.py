@@ -18,6 +18,7 @@ def addUser(user):
         'fun_fact': "",
         'guide_qns': [],
         'bio': "",
+        'want_match': True,
         'want_platonic': True,
         'questionnaire_scores': [],
         'notification_settings': {},

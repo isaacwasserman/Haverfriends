@@ -23,10 +23,11 @@ def form_groups(all_users_dict):
     platonic_users = []
     non_platonic_users = []
     for user_id, user_details in all_users_dict.items():
-        if user_details['want_platonic']:
-            platonic_users.append((user_id, user_details))
-        else:
-            non_platonic_users.append((user_id, user_details))
+        if user_details['want_match']:
+            if user_details['want_platonic']:
+                platonic_users.append((user_id, user_details))
+            else:
+                non_platonic_users.append((user_id, user_details))
     return platonic_users, non_platonic_users
 
 def find_unmatched_users(user_group):
