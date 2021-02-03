@@ -26,19 +26,23 @@ def home():
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
 def chat(chatID):
     user = authenticate(request.cookies.get('sessionToken'))
-    if request.method == "POST":
-        msg=request.json['msg']
-        firebase_functions.sendChat(chatID, "3IjzLCVthGTrlbwkk4woYHfpZB43", msg)
     #if "redirect" in user:
     #    return redirect(user["redirect"])
+    if request.method == "POST":
+        msg=request.json['msg']
+        firebase_functions.sendChat(chatID, user["uid"], msg)
     chatID=str(chatID)
-    other_ID= "Mt9CvYFqy74pS0s2fl9i" #fix this later, using the chatID
-    other_doc=firebase_functions.getUser(other_ID) 
+    chatMembers = chatID.split("_")
+    other_ID = ""
+    for member in chatMembers:
+        if member != user["uid"]:
+            other_ID = member
+    other_doc=firebase_functions.getUser(other_ID)
     other_info= [] 
     other_info.append("You are chatting with " + other_doc['name'])
     other_info.append("Their motto is " + "\"" + other_doc['bio'] + "\"")
     other_info.append("Their gender pronoun is " + other_doc['gender_pronouns']) 
-    other_info.append("Their grad year is " + other_doc['grad_year'])
+    other_info.append("Their grad year is " + str(other_doc['grad_year']))
     other_info.append("One fun fact about them is " + "\"" + other_doc['fun_fact'] + "\"" )
     messages= firebase_functions.getChatConversation(chatID)['messages']
     messages_array=[] 
@@ -49,7 +53,7 @@ def chat(chatID):
         username=message['sender_name']
         complete_msg= time + " " + username + ": " + message['text']
         messages_array.append(complete_msg) 
-    return render_template('chat.html', messages_array=messages_array, chatID=chatID, other_info=other_info)
+    return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], userName=user["name"], other_info=other_info)
 
 @app.route("/chat", methods = ["GET","POST"]) 
 def chat_general():
@@ -94,6 +98,9 @@ def profile(user_ID):
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
+    uid = user["uid"]
+    userInfo = firebase_functions.getUser(uid)
+    print(userInfo)
     return render_template("profile.html")
 
 @app.route("/create-profile", methods = ["GET","POST"])
@@ -109,29 +116,75 @@ def create_profile():
             form.profilePic.data.save("tempStorage/" + form.profilePic.data.filename)
             print(firebase_functions.uploadProfilePic(uid, "tempStorage/" + form.profilePic.data.filename))
         # Edit User Profile
-        print(form.data)
         guide_qns = []
         for qn in [form.guideQuestionOne.data,form.guideQuestionTwo.data,form.guideQuestionThree.data]:
             if qn != "":
                 guide_qns.append(qn)
         questionnaire_scores = [form.sportsQuestion.data, form.readingQuestion.data, form.cookingQuestion.data, form.DCFoodQuestion.data, form.MoviesVBoardGamesQuestion.data]
-        firebase_functions.editUser(uid,{
-            "gender_pronouns": form.pronouns.data,
-            "grad_year": form.classYear.data,
-            "fun_fact": form.funFact.data,
-            "guide_qns": guide_qns,
-            "bio": form.bio.data,
-            "questionnaire_scores": questionnaire_scores
-        })
-        return "success"
+        newInfo = {}
+        # Add nonempty values to update
+        if form.pronouns.data != "":
+            newInfo["gender_pronouns"] = form.pronouns.data
+        if form.classYear.data != "":
+            newInfo["grad_year"] = form.classYear.data
+        if form.funFact.data != "":
+            newInfo["fun_fact"] = form.funFact.data
+        if form.funFact.data != "":
+            newInfo["fun_fact"] = form.funFact.data
+        if guide_qns != []:
+            newInfo["guide_qns"] = guide_qns
+        if form.bio.data != "":
+            newInfo["bio"] = form.bio.data
+        newInfo["questionnaire_scores"] = questionnaire_scores
+        firebase_functions.editUser(uid, newInfo)
+        return redirect("/profile/" + uid)
     return render_template("create_profile.html", form=form)
 
-@app.route("/edit-profile/<user_ID>", methods = ["GET","POST"])
-def edit_profile(user_ID):
+@app.route("/edit-profile", methods = ["GET","POST"])
+def edit_profile():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
-    return render_template("edit_profile.html") 
+    uid = user["uid"]
+    existingUserInfo = firebase_functions.getUser(uid)
+    class ExistingUserInfo(object):
+        existingUserInfo = firebase_functions.getUser(uid)
+        profilePic = ""
+        pronouns = existingUserInfo["gender_pronouns"]
+        classYear = existingUserInfo["grad_year"]
+        funFact = existingUserInfo["fun_fact"]
+        guideQuestionOne = existingUserInfo["guide_qns"][0] if len(existingUserInfo["guide_qns"]) > 0 else ""
+        guideQuestionTwo = existingUserInfo["guide_qns"][1] if len(existingUserInfo["guide_qns"]) > 1 else ""
+        guideQuestionThree = existingUserInfo["guide_qns"][2] if len(existingUserInfo["guide_qns"]) > 2 else ""
+        bio = existingUserInfo["bio"]
+        sportsQuestion = existingUserInfo["questionnaire_scores"][0]
+        readingQuestion = existingUserInfo["questionnaire_scores"][1]
+        cookingQuestion = existingUserInfo["questionnaire_scores"][2]
+        DCFoodQuestion = existingUserInfo["questionnaire_scores"][3]
+        MoviesVBoardGamesQuestion = existingUserInfo["questionnaire_scores"][4]
+    form = forms.EditProfileForm(obj=ExistingUserInfo)
+    if form.validate_on_submit():
+        if form.profilePic.data is not None and form.profilePic.data != "":
+            form.profilePic.data.save("tempStorage/" + form.profilePic.data.filename)
+            print(firebase_functions.uploadProfilePic(uid, "tempStorage/" + form.profilePic.data.filename))
+        # Edit User Profile
+        guide_qns = []
+        for qn in [form.guideQuestionOne.data,form.guideQuestionTwo.data,form.guideQuestionThree.data]:
+            if qn != "":
+                guide_qns.append(qn)
+        questionnaire_scores = [form.sportsQuestion.data, form.readingQuestion.data, form.cookingQuestion.data, form.DCFoodQuestion.data, form.MoviesVBoardGamesQuestion.data]
+        newInfo = {}
+        # Add values to update
+        newInfo["gender_pronouns"] = form.pronouns.data
+        newInfo["grad_year"] = form.classYear.data
+        newInfo["fun_fact"] = form.funFact.data
+        newInfo["fun_fact"] = form.funFact.data
+        newInfo["guide_qns"] = guide_qns
+        newInfo["bio"] = form.bio.data
+        newInfo["questionnaire_scores"] = questionnaire_scores
+        firebase_functions.editUser(uid, newInfo)
+        return redirect("/profile/" + uid)
+    return render_template("edit_profile.html", form=form, userInfo=existingUserInfo)
 
 if __name__ == '__main__': 
     app.run(debug=True) 

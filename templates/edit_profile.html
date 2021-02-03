@@ -1,5 +1,17 @@
-<html> 
-    <head> 
-        <title> Edit your profile</title>
-    </head>
-</html>
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block content %}
+<div class="container">
+    <img id="profilePicPreview" style="width:300px" src="{{ userInfo['photo'] }}"/>
+    {{ wtf.quick_form(form) }}
+    <script>
+        document.querySelector("input#profilePic").onchange = function(){
+            var reader = new FileReader()
+            reader.onload = function(e) {
+              document.querySelector("#profilePicPreview").src = e.target.result
+            }
+            reader.readAsDataURL(document.querySelector("input#profilePic").files[0])
+        }
+    </script>
+</div>
+{% endblock %}
