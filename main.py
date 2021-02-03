@@ -124,12 +124,6 @@ def chat_general():
         return redirect(user["redirect"])
     return render_template("chat_general.html", showAccountStatus=True)
 
-@app.route("/register", methods = ["GET","POST"])
-def register():
-    if request.method == "POST":
-        pass
-    pass
-
 @app.route("/login", methods = ["GET","POST"])
 def login():
     if request.method == 'POST':
@@ -168,9 +162,12 @@ def profile(user_ID):
         return redirect(user["redirect"])
     uid = user["uid"]
     user_object=user_object = firebase_functions.getUser(user_ID)
+    matched_object_list = []
+    if user_object.get('matched_count') is not None:
+        matched_object_list = [firebase_functions.getUser(list(x.keys())[0]) for x in user_object['matched_count']]
     userInfo = firebase_functions.getUser(uid)
     print(userInfo)
-    return render_template("profile.html", showAccountStatus=True, user=user_object)
+    return render_template("profile.html", showAccountStatus=True, user=user_object,matched_object_list=matched_object_list)
 
 @app.route("/create-profile", methods = ["GET","POST"])
 def create_profile():

@@ -17,52 +17,29 @@
 
 <body>
     <main class="page lanidng-page">
-        <section class="text-white-50 portfolio-block block-intro" style="height: 350px;">
-            <h1 class="text-primary">Dashboard</h1>
-            <div class="container">
-                <div class="avatar" style="background-image:url(&quot;assets/img/avatars/avatar.jpg&quot;);"></div>
-                <div class="about-me">
-                    <p></p>
-                </div>
-            </div>
-        </section>
-        <section class="portfolio-block photography">
-            <div class="container">
-                <div class="row no-gutters">
-                    <div class="col-md-6 col-lg-4 item zoom-on-hover"><a href="#"></a></div>
-                    <div class="col-md-6 col-lg-4 item zoom-on-hover"><a href="#"></a></div>
-                    <div class="col-md-6 col-lg-4 item zoom-on-hover"><a href="#"></a></div>
-                </div>
-            </div>
+        <section class="text-white-50 portfolio-block block-intro" style="height: 200x;">
+            <h1 class="text-primary" style="text-align:center; margin-top: 25pt;">Dashboard</h1>
         </section>
     </main>
     <section class="portfolio-block website gradient">
+        {% for object in matched_object_list %}
         <div class="container">
             <div class="col-md-6" style="width: 360px;">
                 <div class="card special-skill-item border-0">
                     <div class="card-header bg-transparent border-0"><i class="icon ion-image"></i></div>
                     <div class="card-body">
-                        <h3 class="text-primary card-title">Person 1</h3>
+                        <h3 class="text-primary card-title">{{object.name}}</h3>
+                        <h3 class="text-primary card-title">{{object.bio}}</h3>
                         <p class="card-text"></p>
-                        <div class="btn-group" role="group"><button class="btn btn-primary" type="button">Chat</button></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6" style="width: 360px;">
-                <div class="card special-skill-item border-0">
-                    <div class="card-header bg-transparent border-0"><i class="icon ion-image"></i></div>
-                    <div class="card-body">
-                        <h3 class="text-primary card-title">Person 2</h3>
-                        <p class="card-text"></p>
-                        <div class="btn-group" role="group"><button class="btn btn-primary" type="button">Chat</button></div>
-                    </div>
+                    <div class="btn-group" role="group" style="color: white"><button class="btn btn-primary" type="button"> <a id="chatButton" href="http://haverfriends.herokuapp.com/newchat/{{user.uid}}/{{object.uid}}" style="color:white">Chat</a></button></div>
                 </div>
             </div>
         </div>
+        {% endfor %}
     </section>
     <footer class="page-footer">
         <div class="container">
-            <div class="links"><a class="text-primary" href="#">Contact the Haverfriends Team</a></div>
+            <div class="links" style="margin-top: 30px"><a class="text-primary" href="stan@haverford.edu">Contact the Haverfriends Team</a></div>
             <div class="social-icons"></div>
         </div>
     </footer>

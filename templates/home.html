@@ -33,9 +33,11 @@
     return t;
   }
 </script>
+<body> 
+<div>
 <div id="container">
   <div id="matchContainer">
-    <h2>Your Match:</h2>
+    <h2 style="border:2px solid white; background-color: white; text-align: center;">Your Match:</h2>
     {% for object in matched_object_list %}
     <div id="match">
       <div id="matchProfilePic" style="background-color: grey; background-image: url({{object.photo}})"></div>
@@ -46,7 +48,7 @@
     {% endfor %}
   </div>
   <div id="chatContainer">
-    <h2>Your Open Chats:</h2>
+    <h2 style="border:2px solid white; background-color: white; text-align: center;">Your Open Chats:</h2>
     <div id="chats">
       {% for conversation in involvedConversations %}
       <a class="chatRow" href="/chat/{{conversation.chat_id}}">
@@ -62,3 +64,5 @@
   </div>
 </div>
 {% endblock %}
+</div>
+</body>

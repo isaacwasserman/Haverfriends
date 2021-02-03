@@ -143,7 +143,16 @@
 {% endfor %}
 </div> -->
 
-<div class="row chat-window col-xs-5 col-md-3" id="chat_window_1" style="margin-left:10px;">
+<script>
+    function pasteInChat(){
+      let fields = $( "select option:selected" )
+      let message = `Hey, wanna ${fields[0].textContent} with me ${fields[1].textContent} ${fields[2].textContent} ${fields[3].textContent}?`
+      document.querySelector("#btn-input").value = message
+    }
+</script>
+
+<div id="container">
+    <div class="row chat-window col-xs-5 col-md-3" id="chat_window_1" style="margin-left:10px;">
         <div class="col-xs-12 col-md-12">
         	<div class="panel panel-default">
                 <div class="panel-heading top-bar">
@@ -165,13 +174,71 @@
                         <button class="btn btn-primary btn-sm" id="btn-chat">Send</button>
                         </span>
                     </div>
-                    {% for info in other_info %}
-                    <p> {{info}} </p>
-                    {% endfor %}
                 </div>
     		</div>
         </div>
         <div id="chatID" style="display: none">{{chatID}}</div>
     </div>
+    <div id="info-panel">
+        <h1>Get to know {{otherUser.name}}:</h1>
+        <ul>
+            <li>They use {{otherUser.gender_pronouns}} pronouns.</li>
+            <li>Their bio: {{otherUser.bio}}</li>
+            <li>They're a member of the class of {{otherUser.grad_year}}.</li>
+            <li>"{{otherUser.fun_fact}}"</li>
+<!--            {% for info in other_info %}-->
+<!--            <li> {{info}} </li>-->
+<!--            {% endfor %}-->
+        </ul>
+<!--        <h1>Suggested Topics:</h1>-->
+        <h1>Next Steps:</h1>
+        <p>Try asking...</p>
+        <p>Hey, wanna
+            <select>
+                <option>grab lunch</option>
+                <option>grab brunch</option>
+                <option>grab Coop sushi</option>
+            </select> with me <br/>
+            <select>
+                <option>today</option>
+                <option>tomorrow</option>
+                <option>later</option>
+            </select>
+            <select>
+                <option>at</option>
+                <option>around</option>
+            </select>
+            <select>
+                <option>8:00am</option>
+                <option>8:30am</option>
+                <option>9:00am</option>
+                <option>9:30am</option>
+                <option>10:00am</option>
+                <option>10:30am</option>
+                <option>11:00am</option>
+                <option>11:30am</option>
+                <option>12:00pm</option>
+                <option>12:30pm</option>
+                <option>1:00pm</option>
+                <option>1:30pm</option>
+                <option>2:00pm</option>
+                <option>2:30pm</option>
+                <option>3:00pm</option>
+                <option>3:30pm</option>
+                <option>4:00pm</option>
+                <option>4:30pm</option>
+                <option>5:00pm</option>
+                <option>5:30pm</option>
+                <option>6:00pm</option>
+                <option>6:30pm</option>
+                <option>7:00pm</option>
+                <option>7:30pm</option>
+                <option>8:00pm</option>
+                <option>8:30pm</option>
+            </select>?
+        </p><button id="pasteButton" onclick="pasteInChat()">Paste in the Chat</button>
+    </div>
+</div>
+
 
 {% endblock %}
