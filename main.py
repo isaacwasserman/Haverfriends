@@ -43,26 +43,26 @@ def chat(chatID):
         if request.method == "POST":
             msg=request.json['msg']
             firebase_functions.sendChat(chatID, user['user_id'], msg)
-        
+
         chatID=str(chatID)
         other_ID=chatID.replace("_","").replace(user['user_id'],"")
-        other_doc=firebase_functions.getUser(other_ID) 
-        other_info= [] 
+        other_doc=firebase_functions.getUser(other_ID)
+        other_info= []
         other_info.append("You are chatting with " + other_doc['name'])
         other_info.append("Their motto is " + "\"" + other_doc['bio'] + "\"")
-        other_info.append("Their gender pronoun is " + other_doc['gender_pronouns']) 
+        other_info.append("Their gender pronoun is " + other_doc['gender_pronouns'])
         other_info.append("Their grad year is " + str(other_doc['grad_year']))
         other_info.append("One fun fact about them is " + "\"" + other_doc['fun_fact'] + "\"" )
         other_info.append("Here is something you can ask to kickstart the conversation: ")
         other_info.append("\"" + random.choice(other_doc['guide_qns']) + "\"")
         messages= firebase_functions.getChatConversation(chatID)['messages']
-        messages_array=[] 
+        messages_array=[]
         for message in messages:
             time = message['time_in_string']
             username=message['sender_name']
             complete_msg= time + " " + username + ": " + message['text']
-            messages_array.append(complete_msg) 
-        return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], userName=user["name"], other_info=other_info)
+            messages_array.append(complete_msg)
+        return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], user=userInfo, otherUser=other_doc, userName=user["name"], other_info=other_info)
     else:
         content = 'Unauthorized to access this chat conversation'
         #TODO add option to show error-message in template
@@ -104,6 +104,12 @@ def login():
             return flask.abort(401, 'Failed to create a session cookie')
     else:
         response = make_response(render_template('login.html'))
+    return response
+
+@app.route("/logout", methods = ["GET","POST"])
+def logout():
+    response = make_response(redirect("/login"))
+    response.set_cookie('sessionToken', "", expires=0, httponly=False, secure=False)
     return response
 
 @app.route("/profile/<user_ID>", methods = ["GET","POST"]) 
@@ -207,7 +213,7 @@ def match_users():
 
         all_users = firebase_functions.getAllUsers()
 
-        # Remove chats that were never used in the previous match and clear matches that were made in the 
+        # Remove chats that were never used in the previous match and clear matches that were made in the
         # previous match cycle from matched_count
 
         for user_id, user_details in all_users.items():
@@ -275,10 +281,10 @@ def match_users():
             })
 
         content = {'matching done': 'chats that were never initiated are removed'}
-        return content, status.HTTP_200_OK 
+        return content, status.HTTP_200_OK
     else:
         content = {'please move along': 'nothing to see here'}
-        return content, status.HTTP_404_NOT_FOUND  
+        return content, status.HTTP_404_NOT_FOUND
 
 if __name__ == '__main__':
     if 'PORT' in os.environ:

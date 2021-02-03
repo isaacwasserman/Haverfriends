@@ -1,0 +1,72 @@
+#container {
+  /* background-color: black; */
+  min-height: 200px;
+  width: 1200px;
+  max-width: 100%;
+  margin: 60px auto;
+  display: flex;
+  justify-content: space-around;
+}
+
+#matchContainer {
+  width: 300px;
+  /* background-color: white; */
+}
+#matchContainer h2 {
+  font-weight: 700;
+  font-size: 42px;
+}
+#matchContainer #match {
+  background-color: white;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
+  -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
+  box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
+}
+#match #matchProfilePic {
+  height: 150px;
+  width: 150px;
+  border-radius: 100%;
+  align-self: center;
+}
+
+#match #matchName {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  margin: 10px 0px;
+}
+
+#match #matchBio {
+  font-family: serif;
+  text-align: center;
+  font-size: 20px;
+  color: #555;
+}
+
+#match #chatButton {
+  height: 40px;
+  width: 100px;
+  background-color: rgb(33, 143, 251);
+  border-radius: 7px;
+  color: white;
+  align-self: center;
+  margin: 10px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 37px;
+  cursor: pointer;
+}
+
+#match #chatButton:hover {
+  opacity: 0.8;
+}
+
+#chatContainer {
+  width: 600px;
+  height: 500px;
+  background-color: white;
+}

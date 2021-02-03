@@ -1,92 +1,170 @@
-<html>
-    <head>
-        <title> Chat room </title>
-    </head>
-    <body>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-auth.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-firestore.js"></script>
-        <script id="MainScript">
-        var firebaseConfig = {
-            apiKey: "AIzaSyCe_db6Qj1jHISdWZigvlBAXzLZNzfzFKs",
-            authDomain: "haverfriends-9b932.firebaseapp.com",
-            projectId: "haverfriends-9b932",
-            storageBucket: "haverfriends-9b932.appspot.com",
-            messagingSenderId: "68391205434",
-            appId: "1:68391205434:web:48456413b5f62da16b9303",
-            measurementId: "G-Z8WYEKVQRH"
-          };
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig)
-        let db = firebase.firestore();
+{% extends "base.html" %}
 
-        $(document).ready(function() {
-            var frontendSend = function(chatID, text){
-                let date = new Date()
-                let time = (new Date()).getTime() / 1000
-                let time_in_string = date.getFullYear() + "/" + ("0" + (date.getMonth()+1)).slice(-2) + "/" + ("0" + date.getDate()).slice(-2) + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
-                let message = {
-                    senderID: "{{ uid }}",
-                    sender_name: "{{ userName }}",
-                    text: text,
-                    time: time,
-                    time_in_string: time_in_string
-                }
-                console.log(message)
-                let conversation = db.collection("chats").doc(chatID)
-                conversation.update({
-                   messages: firebase.firestore.FieldValue.arrayUnion(message)
-                }).then(function(){
-                  console.log("success")
-                })
-            }
-            const chatID = "{{ chatID }}"
-            console.log(chatID)
-            $('#send').on('click', function() {
-                var message = $('#message-input').val()
-                $('#message-input').val('');
-                frontendSend(chatID, message)
-                // $.ajax({
-                //         type : "POST",
-                //         url : window.location.origin + "/chat/" + chatID,
-                //         data: JSON.stringify({"msg": message}),
-                //         dataType:"json",
-                //         contentType: 'application/json;charset=UTF-8',
-                //         success: function() {
-                //             console.log("Success")
-                //         }
-                //     });
-        });
-        var initState = true;
+{% block content %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-firestore.js"></script>
+<link rel="stylesheet" href="{{url_for('static', filename='css/chat.css')}}"/>
+<script id="MainScript">
+  var firebaseConfig = {
+      apiKey: "AIzaSyCe_db6Qj1jHISdWZigvlBAXzLZNzfzFKs",
+      authDomain: "haverfriends-9b932.firebaseapp.com",
+      projectId: "haverfriends-9b932",
+      storageBucket: "haverfriends-9b932.appspot.com",
+      messagingSenderId: "68391205434",
+      appId: "1:68391205434:web:48456413b5f62da16b9303",
+      measurementId: "G-Z8WYEKVQRH"
+    };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig)
+  let db = firebase.firestore();
 
-        db.collection("chats").doc(chatID).onSnapshot(function(doc) {
-            if (initState) {
-                initState=false
-            }
-            else {
-            msg_doc= doc.data()['messages'][doc.data()['messages'].length-1];
-            complete_message=msg_doc['time_in_string'] + " " + msg_doc['sender_name'] + ": " + msg_doc['text']
-            $("#message-display").append(complete_message)
-            $("#message-display").append('<br>')
-            }
-        });
-        });
-        </script>
+  $(document).ready(function() {
+      var frontendSend = function(chatID, text){
+          let date = new Date()
+          let time = (new Date()).getTime() / 1000
+          let time_in_string = date.getFullYear() + "/" + ("0" + (date.getMonth()+1)).slice(-2) + "/" + ("0" + date.getDate()).slice(-2) + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+          let message = {
+              senderID: "{{ uid }}",
+              sender_name: "{{ userName }}",
+              text: text,
+              time: time,
+              time_in_string: time_in_string
+          }
+          console.log(message)
+          let conversation = db.collection("chats").doc(chatID)
+          conversation.update({
+             messages: firebase.firestore.FieldValue.arrayUnion(message)
+          }).then(function(){
+            console.log("success")
+          })
+      }
+      const chatID = "{{ chatID }}"
+      console.log(chatID)
+      $(document).on('click', '#btn-chat', function(e){
+        let text = document.querySelector("#btn-input").value
+        document.querySelector("#btn-input").value = ""
+        let chatID = document.querySelector("#chatID").innerHTML
+        frontendSend(chatID, text)
+      })
+      $('#send').on('click', function() {
+          var message = $('#message-input').val()
+          $('#message-input').val('');
+          frontendSend(chatID, message)
+          // $.ajax({
+          //         type : "POST",
+          //         url : window.location.origin + "/chat/" + chatID,
+          //         data: JSON.stringify({"msg": message}),
+          //         dataType:"json",
+          //         contentType: 'application/json;charset=UTF-8',
+          //         success: function() {
+          //             console.log("Success")
+          //         }
+          //     });
+  });
+  var initState = true;
+  db.collection("users").doc("{{user.uid}}").get().then(function(doc){
+    let userProfilePicUrl = doc.data().photo
+    db.collection("users").doc("{{otherUser.uid}}").get().then(function(doc){
+      let otherUserProfilePicUrl = doc.data().photo
+      db.collection("chats").doc(chatID).onSnapshot(function(doc) {
+        let messageElements = ""
+        for(var message of doc.data().messages){
+          let sentReceive = "receive"
+          if(message.sender_name == "{{userName}}"){
+            sentReceive = "sent"
+          }
+          if(sentReceive == "sent"){
+            columns = [`<div class="col-md-10 col-xs-10">
+                <div class="messages msg_${sentReceive}">
+                    <p>${message.text}</p>
+                    <time datetime="${message.time}">${message.sender_name}</time>
+                </div>
+            </div>`,`<div class="col-md-2 col-xs-2 avatar">
+                <img src="${userProfilePicUrl}" class=" img-responsive ">
+            </div>`]
+          }
+          else {
+            columns = [`<div class="col-md-2 col-xs-2 avatar">
+                <img src="${otherUserProfilePicUrl}" class=" img-responsive ">
+            </div>`,`<div class="col-md-10 col-xs-10">
+                <div class="messages msg_${sentReceive}">
+                    <p>${message.text}</p>
+                    <time datetime="${message.time}">${message.sender_name}</time>
+                </div>
+            </div>`]
+          }
+          let messageElement = `<div class="row msg_container base_${sentReceive}">
+              ${columns[0]}${columns[1]}
+          </div>`
+          messageElements = messageElements + messageElement
+        }
+        document.querySelector(".panel-body.msg_container_base").innerHTML = messageElements
+        setTimeout(function(){
+          $(".msg_container_base").scrollTop(99999999999)
+          console.log("scroll")
+        }, 500);
+      });
+    })
+  })
+  db.collection("chats").doc(chatID).onSnapshot(function(doc) {
+      if (initState) {
+          initState=false
+      }
+      else {
+      msg_doc= doc.data()['messages'][doc.data()['messages'].length-1];
+      complete_message=msg_doc['time_in_string'] + " " + msg_doc['sender_name'] + ": " + msg_doc['text']
+      $("#message-display").append(complete_message)
+      $("#message-display").append('<br>')
+      }
+  });
+  });
 
-        <div> Welcome to chat! </div>
-        <div style = "overflow-y: scroll; height: 400px; width: 600px" id="message-display" white-space: pre-line>
-        {% for message in messages_array %}
-        <p> {{message}} </p>
-        {% endfor %}
+</script>
+<script src="{{url_for('static', filename='js/chatInterface.js')}}"></script>
+
+<!-- <div> Welcome to chat! </div>
+<div style = "overflow-y: scroll; height: 400px; width: 600px" id="message-display" white-space: pre-line>
+{% for message in messages_array %}
+<p> {{message}} </p>
+{% endfor %}
+</div>
+<input type="text" id="message-input">
+<button id="send"> Send </button>
+<div>
+{% for info in other_info %}
+<p> {{info}} </p>
+{% endfor %}
+</div> -->
+
+<div class="row chat-window col-xs-5 col-md-3" id="chat_window_1" style="margin-left:10px;">
+        <div class="col-xs-12 col-md-12">
+        	<div class="panel panel-default">
+                <div class="panel-heading top-bar">
+                    <div class="col-md-8 col-xs-8">
+                        <h3 class="panel-title"><span class="glyphicon glyphicon-comment"></span> Chat - {{otherUser.name}}</h3>
+                    </div>
+                    <div class="col-md-4 col-xs-4" style="text-align: right;">
+                        <a href="#"><span id="minim_chat_window" class="glyphicon glyphicon-minus icon_minim"></span></a>
+                        <a href="#"><span class="glyphicon glyphicon-remove icon_close" data-id="chat_window_1"></span></a>
+                    </div>
+                </div>
+                <div class="panel-body msg_container_base">
+
+                </div>
+                <div class="panel-footer">
+                    <div class="input-group">
+                        <input id="btn-input" type="text" class="form-control input-sm chat_input" placeholder="Write your message here..." />
+                        <span class="input-group-btn">
+                        <button class="btn btn-primary btn-sm" id="btn-chat">Send</button>
+                        </span>
+                    </div>
+                </div>
+    		</div>
         </div>
-        <input type="text" id="message-input">
-        <button id="send"> Send </button>
-        <div>
-        {% for info in other_info %}
-        <p> {{info}} </p>
-        {% endfor %}
-        </div>
-    </body>
-</html>
+        <div id="chatID" style="display: none">{{chatID}}</div>
+    </div>
+
+{% endblock %}
