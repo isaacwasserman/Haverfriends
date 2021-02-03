@@ -9,6 +9,7 @@
             var reader = new FileReader()
             reader.onload = function(e) {
               document.querySelector("#profilePicPreview").src = e.target.result
+              document.querySelector("#profilePicBase64").value = e.target.result
             }
             reader.readAsDataURL(document.querySelector("input#profilePic").files[0])
         }

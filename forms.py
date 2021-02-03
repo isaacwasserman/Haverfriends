@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, HiddenField
 from wtforms.widgets import Input
 from wtforms.fields.html5 import IntegerRangeField
 from flask_wtf.file import FileField, FileRequired, FileAllowed
@@ -8,6 +8,7 @@ import firebase.firebaseFunctions as firebase_functions
 
 class CreateProfileForm(FlaskForm):
     profilePic = FileField('Profile Pic', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    profilePicBase64 = HiddenField("profilePicBase64")
     pronouns = StringField('Pronouns', validators=[DataRequired()])
     classYear = IntegerField('Year of Expected Graduation', validators=[DataRequired(), NumberRange(min=2021)])
     funFact = StringField('A Fun Fact About Yourself')
@@ -24,6 +25,7 @@ class CreateProfileForm(FlaskForm):
 
 class EditProfileForm(FlaskForm):
     profilePic = FileField('Change Profile Pic', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    profilePicBase64 = HiddenField("profilePicBase64")
     pronouns = StringField('Pronouns', validators=[DataRequired()], render_kw={})
     classYear = IntegerField('Year of Expected Graduation', validators=[DataRequired(), NumberRange(min=2021)])
     funFact = StringField('A Fun Fact About Yourself')

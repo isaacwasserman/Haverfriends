@@ -17,6 +17,8 @@ app.config['SECRET_KEY'] = os.urandom(32)
 
 Bootstrap(app)
 
+print(os.listdir())
+
 @app.route("/")
 def home():
     user = authenticate(request.cookies.get('sessionToken'))
@@ -71,7 +73,7 @@ def chat(chatID):
             other_info.append("Their motto is " + "\"" + other_doc['bio'] + "\"")
         if 'gender_pronouns' in other_doc:
             other_info.append("Their gender pronoun is " + other_doc['gender_pronouns'])
-        if 'grad_year' in other_doc: 
+        if 'grad_year' in other_doc:
             other_info.append("Their grad year is " + str(other_doc['grad_year']))
         if 'fun_fact' in other_doc:
             other_info.append("One fun fact about them is " + "\"" + other_doc['fun_fact'] + "\"" )
