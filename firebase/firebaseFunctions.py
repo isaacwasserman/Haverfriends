@@ -1,6 +1,7 @@
 from .firebaseInit import firebase, firestore, storage
 import time
 import os
+import datetime
 db = firestore.client()
 bucket = storage.bucket()
 
@@ -69,7 +70,7 @@ def sendChat(chat_id, senderID, message):
             'sender_name': getUser(senderID)['name'],
             'time': time.time(),
             'text': message,
-            'time_in_string': datetime.fromtimestamp(time.time()).strftime("%Y/%m/%d %H:%M")
+            'time_in_string': datetime.datetime.fromtimestamp(time.time()).strftime("%Y/%m/%d %H:%M")
         }])
     })
     return {'senderID':senderID, 'time': time.time(), 'text': message}

@@ -28,9 +28,9 @@ def chat(chatID):
     user = authenticate(request.cookies.get('sessionToken'))
     if request.method == "POST":
         msg=request.json['msg']
-        firebase_functions.sendChat(chatID, "3IjzLCVthGTrlbwkk4woYHfpZB43", msg)
-    #if "redirect" in user:
-    #    return redirect(user["redirect"])
+        firebase_functions.sendChat(chatID, user['user_id'], msg)
+    if "redirect" in user:
+        return redirect(user["redirect"])
     chatID=str(chatID)
     other_ID= "Mt9CvYFqy74pS0s2fl9i" #fix this later, using the chatID
     other_doc=firebase_functions.getUser(other_ID) 
