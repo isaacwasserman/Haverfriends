@@ -27,6 +27,7 @@ def home():
 def chat(chatID):
     #TESTING: Isaac's account and my account can chat at http://127.0.0.1:5000/chat/di1Lsn3iCla2Qhzk2nByBKmfUeD3_3IjzLCVthGTrlbwkk4woYHfpZB43
     #need a way to kick the user out if their userID is not in the chatID?
+    #remember to always iniatialize one message in chatID['messages'] array for the chat to work 
     user = authenticate(request.cookies.get('sessionToken'))
     if request.method == "POST":
         msg=request.json['msg']
@@ -48,8 +49,6 @@ def chat(chatID):
     messages= firebase_functions.getChatConversation(chatID)['messages']
     messages_array=[] 
     for message in messages: 
-        #two tasks remaining: need to convert Firestore time object to Python string and 
-        # get sender's name from sender ID. For now, use senderID in place of sender name 
         time = message['time_in_string']
         username=message['sender_name']
         complete_msg= time + " " + username + ": " + message['text']
