@@ -2,16 +2,69 @@
 
 {% block content %}
 <link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}"/>
+<script>
+  function timeSince(date) {
+    var seconds = Math.floor((new Date() - date) / 1000);
+    var interval = seconds / 31536000;
+    if (interval > 1) {
+      return Math.floor(interval) + " years";
+    }
+    interval = seconds / 2592000;
+    if (interval > 1) {
+      return Math.floor(interval) + " months";
+    }
+    interval = seconds / 86400;
+    if (interval > 1) {
+      return Math.floor(interval) + " days";
+    }
+    interval = seconds / 3600;
+    if (interval > 1) {
+      return Math.floor(interval) + " hours";
+    }
+    interval = seconds / 60;
+    if (interval > 1) {
+      return Math.floor(interval) + " minutes";
+    }
+    return Math.floor(seconds) + " seconds";
+  }
+  function toDateTime(secs) {
+    var t = new Date(1970, 0, 1); // Epoch
+    t.setSeconds(secs);
+    return t;
+  }
+</script>
 <div id="container">
   <div id="matchContainer">
     <h2>Your Match:</h2>
+    {% for object in matched_object_list %}
     <div id="match">
-      <div id="matchProfilePic" style="background-color: grey; background-image: url(https://storage.googleapis.com/haverfriends-9b932.appspot.com/profilePics/wuVkW7lqhWWKfro75XvGpOQ1yWr2.jpg)"></div>
-      <div id="matchName">A Person with Name</div>
-      <div id="matchBio">There's gonna be some text here. Maybe even a lot of text.</div>
-      <div id="chatButton">Reach Out</div>
+      <div id="matchProfilePic" style="background-color: grey; background-image: url({{object.photo}})"></div>
+      <div id="matchName">{{object.name}}</div>
+      <div id="matchBio">{{object.bio}}</div>
+      <a id="chatButton" href="newchat/{{user.uid}}/{{object.uid}}">Reach Out</a>
+    </div>
+    {% endfor %}
+  </div>
+  <div id="chatContainer">
+    <h2>Your Open Chats:</h2>
+    <div id="chats">
+      <div class="chatRow">
+        <div class="chatProfilePic"></div>
+        <div class="chatMiddle">
+          <div class="chatName">Isaac Wasserman</div>
+          <div class="chatLastMessage">This is a recent message from a person.</div>
+        </div>
+        <!-- <div class="chatLastMessageTime">timeSince(toDateTime(1612320143.1260731))</div> -->
+      </div>
+      <div class="chatRow">
+        <div class="chatProfilePic"></div>
+        <div class="chatMiddle">
+          <div class="chatName">Isaac Wasserman</div>
+          <div class="chatLastMessage">This is a recent message from a person.</div>
+        </div>
+        <!-- <div class="chatLastMessageTime">timeSince(toDateTime(1612320143.1260731))</div> -->
+      </div>
     </div>
   </div>
-  <div id="chatContainer"></div>
 </div>
 {% endblock %}

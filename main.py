@@ -17,7 +17,7 @@ app.config['SECRET_KEY'] = os.urandom(32)
 
 Bootstrap(app)
 
-@app.route("/")  
+@app.route("/")
 def home():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
@@ -27,10 +27,19 @@ def home():
     matched_object_list = None
     if user_object.get('matched_count') is not None:
         matched_object_list = [firebase_functions.getUser(list(x.keys())[0]) for x in user_object['matched_count']]
-    
-    return render_template('home.html', matched_object_list=matched_object_list)
+    # Get conversations
+    return render_template('home.html', user=user_object, matched_object_list=matched_object_list)
 
-@app.route("/chat/<chatID>", methods = ["GET","POST"]) 
+@app.route("/newchat/<uidOne>/<uidTwo>")
+def newchat(uidOne, uidTwo):
+    sortedUIDS = sorted([uidOne, uidTwo])
+    if firebase_functions.getChatConversation(sortedUIDS[0] + "_" + sortedUIDS[1]) is None:
+        conversation = firebase_functions.addChatConversation(uidOne, uidTwo)
+        chatID = conversation["chat_id"]
+    return redirect("/chat/" + chatID)
+
+
+@app.route("/chat/<chatID>", methods = ["GET","POST"])
 def chat(chatID):
     #TESTING: Isaac's account and my account can chat at http://127.0.0.1:5000/chat/di1Lsn3iCla2Qhzk2nByBKmfUeD3_3IjzLCVthGTrlbwkk4woYHfpZB43
     #need a way to kick the user out if their userID is not in the chatID?
@@ -46,6 +55,7 @@ def chat(chatID):
 
         chatID=str(chatID)
         other_ID=chatID.replace("_","").replace(user['user_id'],"")
+        userInfo = firebase_functions.getUser(user['user_id'])
         other_doc=firebase_functions.getUser(other_ID)
         other_info= []
         other_info.append("You are chatting with " + other_doc['name'])
@@ -68,20 +78,20 @@ def chat(chatID):
         #TODO add option to show error-message in template
         return render_template("chat_general.html", error_message=content)
 
-@app.route("/chat", methods = ["GET","POST"]) 
+@app.route("/chat", methods = ["GET","POST"])
 def chat_general():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
     return render_template("chat_general.html")
 
-@app.route("/register", methods = ["GET","POST"]) 
-def register(): 
-    if request.method == "POST": 
+@app.route("/register", methods = ["GET","POST"])
+def register():
+    if request.method == "POST":
         pass
-    pass 
+    pass
 
-@app.route("/login", methods = ["GET","POST"]) 
+@app.route("/login", methods = ["GET","POST"])
 def login():
     if request.method == 'POST':
         dataString = request.get_data().decode("utf-8")
@@ -112,7 +122,7 @@ def logout():
     response.set_cookie('sessionToken', "", expires=0, httponly=False, secure=False)
     return response
 
-@app.route("/profile/<user_ID>", methods = ["GET","POST"]) 
+@app.route("/profile/<user_ID>", methods = ["GET","POST"])
 def profile(user_ID):
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
@@ -293,5 +303,3 @@ if __name__ == '__main__':
     else:
         port = 5000
     app.run(host='0.0.0.0', port=port, debug=True)
-
-

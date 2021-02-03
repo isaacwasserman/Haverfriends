@@ -33,6 +33,7 @@ def editUser(uid, newInfo):
     return user.get().to_dict()
 
 def getUser(uid):
+    print(uid)
     user = db.collection('users').document(uid)
     return user.get().to_dict()
 
@@ -58,7 +59,7 @@ def addChatConversation(userOneID, userTwoID):
     chat_id = sortedUIDS[0] + "_" + sortedUIDS[1]
     chats.document(chat_id).set({
         "chat_id": chat_id,
-        "messages": [],
+        "messages": [{"senderID": "None", "sender_name": "Bot", "text": "You've been matched", "time": 0, "time_in_string": "Just Now"}],
         "matched_time": time.time()
     })
 
@@ -72,6 +73,16 @@ def getChatConversation(chat_id):
 
 def deleteChatConversation(chat_id):
     db.collection('chats').document(chat_id).delete()
+
+def getInvolvedConversations(uid):
+    conversations = db.collection('chats').get()
+    involved = []
+    for conversation in conversations:
+        conversationDict = conversation.to_dict()
+        if "chat_id" in conversationDict:
+            if uid in conversationDict["chat_id"]:
+                involved.append(conversationDict)
+    return involved
 
 def sendChat(chat_id, senderID, message):
     conversation = db.collection('chats').document(chat_id)
