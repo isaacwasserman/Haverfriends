@@ -1,8 +1,17 @@
 {% extends "base.html" %}
-{% block head %}
-    {{ super() }}
-    <title>Haverfriends Home</title>
-{% endblock %}
+
 {% block content %}
-    {{ super() }}
+<link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}"/>
+<div id="container">
+  <div id="matchContainer">
+    <h2>Your Match:</h2>
+    <div id="match">
+      <div id="matchProfilePic" style="background-color: grey; background-image: url(https://storage.googleapis.com/haverfriends-9b932.appspot.com/profilePics/wuVkW7lqhWWKfro75XvGpOQ1yWr2.jpg)"></div>
+      <div id="matchName">A Person with Name</div>
+      <div id="matchBio">There's gonna be some text here. Maybe even a lot of text.</div>
+      <div id="chatButton">Reach Out</div>
+    </div>
+  </div>
+  <div id="chatContainer"></div>
+</div>
 {% endblock %}

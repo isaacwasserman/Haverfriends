@@ -20,8 +20,9 @@ def home():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
-
-    return render_template('home.html')
+    uid = user["uid"]
+    userInfo = firebase_functions.getUser(uid)
+    return render_template('home.html', user=userInfo, showAccountStatus=True)
 
 @app.route("/chat/<chatID>", methods = ["GET","POST"]) 
 def chat(chatID):
@@ -36,6 +37,7 @@ def chat(chatID):
         return redirect(user["redirect"])
     chatID=str(chatID)
     other_ID=chatID.replace("_","").replace(user['user_id'],"")
+    userInfo = firebase_functions.getUser(user['uid'])
     other_doc=firebase_functions.getUser(other_ID) 
     other_info= [] 
     other_info.append("You are chatting with " + other_doc['name'])
@@ -53,7 +55,7 @@ def chat(chatID):
         username=message['sender_name']
         complete_msg= time + " " + username + ": " + message['text']
         messages_array.append(complete_msg) 
-    return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], userName=user["name"], other_info=other_info)
+    return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], user=userInfo, otherUser=other_doc, userName=user["name"], other_info=other_info)
 
 @app.route("/chat", methods = ["GET","POST"]) 
 def chat_general():
@@ -91,6 +93,12 @@ def login():
             return flask.abort(401, 'Failed to create a session cookie')
     else:
         response = make_response(render_template('login.html'))
+    return response
+
+@app.route("/logout", methods = ["GET","POST"])
+def logout():
+    response = make_response(redirect("/login"))
+    response.set_cookie('sessionToken', "", expires=0, httponly=False, secure=False)
     return response
 
 @app.route("/profile/<user_ID>", methods = ["GET","POST"]) 
