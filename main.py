@@ -140,9 +140,10 @@ def profile(user_ID):
     if "redirect" in user:
         return redirect(user["redirect"])
     uid = user["uid"]
+    user_object=user_object = firebase_functions.getUser(user_ID)
     userInfo = firebase_functions.getUser(uid)
     print(userInfo)
-    return render_template("profile.html", showAccountStatus=True)
+    return render_template("profile.html", showAccountStatus=True, user=user_object)
 
 @app.route("/create-profile", methods = ["GET","POST"])
 def create_profile():
