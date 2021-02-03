@@ -60,7 +60,7 @@ def sendChat(chat_id, senderID, message):
             'sender_name': getUser(senderID)['name'],
             'time': time.time(),
             'text': message, 
-            'time_in_string': datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d %I:%M")
+            'time_in_string': datetime.fromtimestamp(time.time()).strftime("%Y/%m/%d %H:%M")
         }])
     })
     return {'senderID':senderID, 'time': time.time(), 'text': message}
