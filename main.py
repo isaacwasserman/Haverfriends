@@ -10,11 +10,14 @@ from datetime import datetime
 import forms
 from flask_bootstrap import Bootstrap
 from flask_api import status
+from flask_mail import Mail, Message
 import datetime
 import random
+from twilio.rest import Client
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(32)
-
+mail = Mail(app)
 Bootstrap(app)
 
 @app.route("/")
@@ -25,7 +28,7 @@ def home():
         return redirect(user["redirect"])
     user_id = user["uid"]
     user_object = firebase_functions.getUser(user_id)
-    matched_object_list = None
+    matched_object_list = []
     if user_object.get('matched_count') is not None:
         matched_object_list = [firebase_functions.getUser(list(x.keys())[0]) for x in user_object['matched_count']]
     # Get conversations
@@ -60,6 +63,7 @@ def chat(chatID):
     if '_' in chatID and uid in chatID.split('_'):
         if request.method == "POST":
             msg=request.json['msg']
+            send_message('+18563322539')
             firebase_functions.sendChat(chatID, user['user_id'], msg)
 
         chatID=str(chatID)
@@ -312,6 +316,20 @@ def match_users():
     else:
         content = {'please move along': 'nothing to see here'}
         return content, status.HTTP_404_NOT_FOUND
+
+def send_message(to_number, from_number='+17865634468', message='You have a new message on HaverFriends'):
+
+    # account_sid = os.environ['TWILIO_ACCOUNT_SID']
+    account_sid = 'ACbac407e4d1247207799ad8328d68090a'
+    # auth_token = os.environ['TWILIO_AUTH_TOKEN']
+    auth_token = '2ffa997f1542209a82cd07f77d3b86d6'
+    client = Client(account_sid, auth_token)
+
+    message = client.messages.create(
+                                body=message,
+                                from_=from_number,
+                                to=to_number
+                            )
 
 if __name__ == '__main__':
     if 'PORT' in os.environ:

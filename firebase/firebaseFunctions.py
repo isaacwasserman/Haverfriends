@@ -23,7 +23,7 @@ def addUser(user):
         'questionnaire_scores': [],
         'notification_settings': {},
         'active_chat_partners': [],
-        'matched_count': 0
+        'matched_count': []
     })
     return users.document(user["uid"]).get().to_dict()
 
