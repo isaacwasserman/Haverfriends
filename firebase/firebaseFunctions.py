@@ -1,7 +1,9 @@
 from .firebaseInit import firebase
 from firebase_admin import firestore
 import time 
+from datetime import datetime
 db = firestore.client()
+
 
 def addUser(user):
     users = db.collection('users')
@@ -56,7 +58,8 @@ def sendChat(chat_id, senderID, message):
         'messages': firestore.ArrayUnion([{
             'senderID':senderID,
             'time': time.time(),
-            'text': message
+            'text': message, 
+            'time_in_string': datetime.datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d %I:%M:%S")
         }])
     })
     return {'senderID':senderID, 'time': time.time(), 'text': message}
