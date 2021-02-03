@@ -59,10 +59,14 @@ def chat(chatID):
         other_doc=firebase_functions.getUser(other_ID)
         other_info= []
         other_info.append("You are chatting with " + other_doc['name'])
-        other_info.append("Their motto is " + "\"" + other_doc['bio'] + "\"")
-        other_info.append("Their gender pronoun is " + other_doc['gender_pronouns'])
-        other_info.append("Their grad year is " + str(other_doc['grad_year']))
-        other_info.append("One fun fact about them is " + "\"" + other_doc['fun_fact'] + "\"" )
+        if 'bio' in other_doc:
+            other_info.append("Their motto is " + "\"" + other_doc['bio'] + "\"")
+        if 'gender_pronouns' in other_doc:
+            other_info.append("Their gender pronoun is " + other_doc['gender_pronouns'])
+        if 'grad_year' in other_doc: 
+            other_info.append("Their grad year is " + str(other_doc['grad_year']))
+        if 'fun_fact' in other_doc:
+            other_info.append("One fun fact about them is " + "\"" + other_doc['fun_fact'] + "\"" )
         other_info.append("Here is something you can ask to kickstart the conversation: ")
         other_info.append("\"" + random.choice(other_doc['guide_qns']) + "\"")
         messages= firebase_functions.getChatConversation(chatID)['messages']
