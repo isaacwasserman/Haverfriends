@@ -28,7 +28,13 @@ def home():
     if user_object.get('matched_count') is not None:
         matched_object_list = [firebase_functions.getUser(list(x.keys())[0]) for x in user_object['matched_count']]
     # Get conversations
-    return render_template('home.html', user=user_object, matched_object_list=matched_object_list)
+    involvedConversations = firebase_functions.getInvolvedConversations(user_id)
+    for conversation in involvedConversations:
+        otherUserID = conversation["chat_id"].replace(user_id, "").replace("_","")
+        otherUser = firebase_functions.getUser(otherUserID)
+        conversation["otherUser"] = otherUser
+
+    return render_template('home.html', user=user_object, matched_object_list=matched_object_list, involvedConversations=involvedConversations, showAccountStatus=True)
 
 @app.route("/newchat/<uidOne>/<uidTwo>")
 def newchat(uidOne, uidTwo):
@@ -72,18 +78,18 @@ def chat(chatID):
             username=message['sender_name']
             complete_msg= time + " " + username + ": " + message['text']
             messages_array.append(complete_msg)
-        return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], user=userInfo, otherUser=other_doc, userName=user["name"], other_info=other_info)
+        return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], user=userInfo, otherUser=other_doc, userName=user["name"], other_info=other_info, showAccountStatus=True)
     else:
         content = 'Unauthorized to access this chat conversation'
         #TODO add option to show error-message in template
-        return render_template("chat_general.html", error_message=content)
+        return render_template("chat_general.html", error_message=content, showAccountStatus=True)
 
 @app.route("/chat", methods = ["GET","POST"])
 def chat_general():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
-    return render_template("chat_general.html")
+    return render_template("chat_general.html", showAccountStatus=True)
 
 @app.route("/register", methods = ["GET","POST"])
 def register():
@@ -130,7 +136,7 @@ def profile(user_ID):
     uid = user["uid"]
     userInfo = firebase_functions.getUser(uid)
     print(userInfo)
-    return render_template("profile.html")
+    return render_template("profile.html", showAccountStatus=True)
 
 @app.route("/create-profile", methods = ["GET","POST"])
 def create_profile():
@@ -214,7 +220,7 @@ def edit_profile():
         newInfo["questionnaire_scores"] = questionnaire_scores
         firebase_functions.editUser(uid, newInfo)
         return redirect("/profile/" + uid)
-    return render_template("edit_profile.html", form=form, userInfo=existingUserInfo)
+    return render_template("edit_profile.html", form=form, userInfo=existingUserInfo, showAccountStatus=True)
 
 @app.route("/match", methods=["GET"])
 def match_users():
