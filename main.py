@@ -307,33 +307,33 @@ def match_users():
         # Matching algorithm
 
         matched_dict, unmatched_group = matching_algo(all_users)
-
         # Add new match to the different users
         for key, value in matched_dict.items():
-            key_user = firebase_functions.getUser(key)
-            if key_user.get('matched_count') is None:
+            if key != "unmatched":
+                key_user = firebase_functions.getUser(key)
+                if key_user.get('matched_count') is None:
 
-                firebase_functions.editUser(key_user['uid'],{
-                    "matched_count": [{value[0]: value[1]}]
-                })
-            else:
-                new_matched_count = key_user['matched_count'].copy()
-                new_matched_count.append({value[0]: value[1]})
-                firebase_functions.editUser(key_user['uid'],{
-                    "matched_count": new_matched_count
-                })
+                    firebase_functions.editUser(key_user['uid'],{
+                        "matched_count": [{value[0]: value[1]}]
+                    })
+                else:
+                    new_matched_count = key_user['matched_count'].copy()
+                    new_matched_count.append({value[0]: value[1]})
+                    firebase_functions.editUser(key_user['uid'],{
+                        "matched_count": new_matched_count
+                    })
 
-            value_user = firebase_functions.getUser(value[0])
-            if value_user.get('matched_count') is None:
-                firebase_functions.editUser(value_user['uid'],{
-                    "matched_count": [{key: value[1]}]
-                })
-            else:
-                new_matched_count = value_user['matched_count'].copy()
-                new_matched_count.append({key: value[1]})
-                firebase_functions.editUser(value_user['uid'],{
-                    "matched_count": new_matched_count
-                })
+                value_user = firebase_functions.getUser(value[0])
+                if value_user.get('matched_count') is None:
+                    firebase_functions.editUser(value_user['uid'],{
+                        "matched_count": [{key: value[1]}]
+                    })
+                else:
+                    new_matched_count = value_user['matched_count'].copy()
+                    new_matched_count.append({key: value[1]})
+                    firebase_functions.editUser(value_user['uid'],{
+                        "matched_count": new_matched_count
+                    })
 
         # Add empty list to the users with no matches
         for unmatched_user in unmatched_group:
