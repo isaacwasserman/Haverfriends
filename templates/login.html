@@ -46,10 +46,21 @@
                     $.post("/login", {idToken: idToken, check: true}, function(result){
                         console.log(result)
                         setInterval(function(){
-                            if(getCookie("sessionToken").length > 0){
-                                window.location.pathname = "/"
-                            }
-                        }, 500)
+                          $.ajax({
+                          url: window.location.origin + '/user_session',
+                          type: 'GET',
+                          success: function(data) {
+                              console.log(data)
+                              if (data == "yes") { 
+                                  window.location.pathname = "/"
+                                  console.log("redirected")
+                                      }
+                                  },
+                            //if(getCookie("sessionToken").length > 0){
+                            //    window.location.pathname = "/"
+                            //}
+                              })
+                        }, 1000)
                     });
                   }).catch(function(error){
                     console.log(error)

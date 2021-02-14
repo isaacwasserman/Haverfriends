@@ -149,6 +149,8 @@ def login():
             expires = datetime.datetime.now() + expires_in
             response = make_response({"success": True})
             response.set_cookie('sessionToken', session_cookie, expires=expires, httponly=False, secure=False)
+            if authenticate(request.cookies.get('sessionToken')): 
+                print("session exists")
         except exceptions.FirebaseError:
             return flask.abort(401, 'Failed to create a session cookie')
     else:
@@ -358,6 +360,13 @@ def send_message(to_number, from_number='+17865634468', message='You have a new 
                                 to=to_number
                             )
     print(message.sid)
+
+@app.route("/user_session", methods=["GET"])
+def user_session(): 
+    if authenticate(request.cookies.get('sessionToken')): 
+        return "yes" 
+    else: 
+        return "no" 
 
 if __name__ == '__main__':
     if 'PORT' in os.environ:
