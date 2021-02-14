@@ -149,8 +149,6 @@ def login():
             expires = datetime.datetime.now() + expires_in
             response = make_response({"success": True})
             response.set_cookie('sessionToken', session_cookie, expires=expires, httponly=False, secure=False)
-            if authenticate(request.cookies.get('sessionToken')): 
-                print("session exists")
         except exceptions.FirebaseError:
             return flask.abort(401, 'Failed to create a session cookie')
     else:
@@ -178,6 +176,7 @@ def profile(user_ID):
 def create_profile():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user and user["redirect"] != "/create-profile":
+        print(user['redirect'])
         return redirect(user["redirect"])
     form = forms.CreateProfileForm()
     if form.validate_on_submit():
