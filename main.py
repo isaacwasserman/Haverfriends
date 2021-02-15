@@ -362,8 +362,11 @@ def send_message(to_number, from_number='+17865634468', message='You have a new 
 
 @app.route("/user_session", methods=["GET"])
 def user_session(): 
-    if authenticate(request.cookies.get('sessionToken')): 
-        return "yes" 
+    if authenticate(request.cookies.get('sessionToken')):
+        if 'redirect' in authenticate(request.cookies.get('sessionToken')):  
+            return "create-profile" 
+        else: 
+            return "homepage"
     else: 
         return "no" 
 
