@@ -176,6 +176,7 @@ def profile(user_ID):
 def create_profile():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user and user["redirect"] != "/create-profile":
+        print(user['redirect'])
         return redirect(user["redirect"])
     form = forms.CreateProfileForm()
     if form.validate_on_submit():
@@ -306,33 +307,33 @@ def match_users():
         # Matching algorithm
 
         matched_dict, unmatched_group = matching_algo(all_users)
-
         # Add new match to the different users
         for key, value in matched_dict.items():
-            key_user = firebase_functions.getUser(key)
-            if key_user.get('matched_count') is None:
+            if key != "unmatched":
+                key_user = firebase_functions.getUser(key)
+                if key_user.get('matched_count') is None:
 
-                firebase_functions.editUser(key_user['uid'],{
-                    "matched_count": [{value[0]: value[1]}]
-                })
-            else:
-                new_matched_count = key_user['matched_count'].copy()
-                new_matched_count.append({value[0]: value[1]})
-                firebase_functions.editUser(key_user['uid'],{
-                    "matched_count": new_matched_count
-                })
+                    firebase_functions.editUser(key_user['uid'],{
+                        "matched_count": [{value[0]: value[1]}]
+                    })
+                else:
+                    new_matched_count = key_user['matched_count'].copy()
+                    new_matched_count.append({value[0]: value[1]})
+                    firebase_functions.editUser(key_user['uid'],{
+                        "matched_count": new_matched_count
+                    })
 
-            value_user = firebase_functions.getUser(value[0])
-            if value_user.get('matched_count') is None:
-                firebase_functions.editUser(value_user['uid'],{
-                    "matched_count": [{key: value[1]}]
-                })
-            else:
-                new_matched_count = value_user['matched_count'].copy()
-                new_matched_count.append({key: value[1]})
-                firebase_functions.editUser(value_user['uid'],{
-                    "matched_count": new_matched_count
-                })
+                value_user = firebase_functions.getUser(value[0])
+                if value_user.get('matched_count') is None:
+                    firebase_functions.editUser(value_user['uid'],{
+                        "matched_count": [{key: value[1]}]
+                    })
+                else:
+                    new_matched_count = value_user['matched_count'].copy()
+                    new_matched_count.append({key: value[1]})
+                    firebase_functions.editUser(value_user['uid'],{
+                        "matched_count": new_matched_count
+                    })
 
         # Add empty list to the users with no matches
         for unmatched_user in unmatched_group:
@@ -358,6 +359,16 @@ def send_message(to_number, from_number='+17865634468', message='You have a new 
                                 to=to_number
                             )
     print(message.sid)
+
+@app.route("/user_session", methods=["GET"])
+def user_session(): 
+    if authenticate(request.cookies.get('sessionToken')):
+        if 'redirect' in authenticate(request.cookies.get('sessionToken')):  
+            return "create-profile" 
+        else: 
+            return "homepage"
+    else: 
+        return "no" 
 
 if __name__ == '__main__':
     if 'PORT' in os.environ:
