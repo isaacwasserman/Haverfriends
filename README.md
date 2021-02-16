@@ -1,6 +1,6 @@
 # Haverfriends
 
-A TriCoHack project that matches TriCo students to chat with each other. 
+A TriCoHack project that matches students from the TriCo (Haverford College, Bryn Mawr College, and Swarthmore College) to chat with each other. 
 
 Our web application is deployed at: http://haverfriends.herokuapp.com/
 
