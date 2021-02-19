@@ -92,6 +92,8 @@ def chat(chatID):
         other_ID=chatID.replace("_","").replace(user['user_id'],"")
         userInfo = firebase_functions.getUser(user['user_id'])
         other_doc=firebase_functions.getUser(other_ID)
+        question= "They do not have any question yet."
+        #if other_doc['guide_qns] == []: then do the following things:
         question= "Here is something you can ask to kickstart the conversation: "
         question+= random.choice(other_doc['guide_qns']) + "\""
         messages= firebase_functions.getChatConversation(chatID)['messages']
