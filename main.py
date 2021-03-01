@@ -92,18 +92,10 @@ def chat(chatID):
         other_ID=chatID.replace("_","").replace(user['user_id'],"")
         userInfo = firebase_functions.getUser(user['user_id'])
         other_doc=firebase_functions.getUser(other_ID)
-        other_info= []
-        other_info.append("You are chatting with " + other_doc['name'])
-        if 'bio' in other_doc:
-            other_info.append("Their motto is " + "\"" + other_doc['bio'] + "\"")
-        if 'gender_pronouns' in other_doc:
-            other_info.append("Their gender pronoun is " + other_doc['gender_pronouns'])
-        if 'grad_year' in other_doc:
-            other_info.append("Their grad year is " + str(other_doc['grad_year']))
-        if 'fun_fact' in other_doc:
-            other_info.append("One fun fact about them is " + "\"" + other_doc['fun_fact'] + "\"" )
-        other_info.append("Here is something you can ask to kickstart the conversation: ")
-        other_info.append("\"" + random.choice(other_doc['guide_qns']) + "\"")
+        # question= "They do not have any question yet."
+        #if other_doc['guide_qns] == []: then do the following things:
+        question= "Here is something you can ask to kickstart the conversation: "
+        question+= "\"" + random.choice(other_doc['guide_qns']) + "\""
         messages= firebase_functions.getChatConversation(chatID)['messages']
         messages_array=[]
         for message in messages:
@@ -111,7 +103,7 @@ def chat(chatID):
             username=message['sender_name']
             complete_msg= time + " " + username + ": " + message['text']
             messages_array.append(complete_msg)
-        return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], user=userInfo, otherUser=other_doc, userName=user["name"], other_info=other_info, showAccountStatus=True)
+        return render_template('chat.html', messages_array=messages_array, chatID=chatID, uid=user["uid"], user=userInfo, otherUser=other_doc, userName=user["name"], question=question, showAccountStatus=True)
     else:
         content = 'Unauthorized to access this chat conversation'
         #TODO add option to show error-message in template
