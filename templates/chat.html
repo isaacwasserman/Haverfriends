@@ -62,11 +62,33 @@
         console.log('I tried :(')
         frontendSend(chatID, text)
       })
+      $("#btn-input").keyup(function(event){ 
+        if (event.keyCode == '13') {
+            let text = document.querySelector("#btn-input").value
+            if (text != "") { 
+                document.querySelector("#btn-input").value = ""
+                let chatID = document.querySelector("#chatID").innerHTML
+                $.ajax({
+                            type : "POST",
+                            url : window.location.origin + "/chat/" + chatID,
+                            data: JSON.stringify({"msg": 'happy'}),
+                            dataType:"json",
+                            contentType: 'application/json;charset=UTF-8',
+                            success: function() {
+                                console.log("Success");
+                                console.log(window.location.origin + "/chat/" + chatID);
+                            }
+                        });
+                console.log('I tried :(');
+                frontendSend(chatID, text);
+            }
+        }
+    })
       $('#send').on('click', function() {
           var message = $('#message-input').val()
           $('#message-input').val('');
           frontendSend(chatID, message)
-          
+
   });
   var initState = true;
   db.collection("users").doc("{{user.uid}}").get().then(function(doc){
