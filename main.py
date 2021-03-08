@@ -304,28 +304,31 @@ def match_users():
             if key != "unmatched":
                 key_user = firebase_functions.getUser(key)
                 if key_user.get('matched_count') is None:
-
+                    matched_count_info = []
+                    for single_match in value:
+                        matched_count_info.append({single_match[0]: single_match[1]}) # key: matched user_id and value: chat_id
                     firebase_functions.editUser(key_user['uid'],{
-                        "matched_count": [{value[0]: value[1]}]
+                        "matched_count": matched_count_info
                     })
                 else:
                     new_matched_count = key_user['matched_count'].copy()
-                    new_matched_count.append({value[0]: value[1]})
+                    for single_match in value:
+                        new_matched_count.append({single_match[0]: single_match[1]}) # key: matched user_id and value: chat_id
                     firebase_functions.editUser(key_user['uid'],{
                         "matched_count": new_matched_count
                     })
-
-                value_user = firebase_functions.getUser(value[0])
-                if value_user.get('matched_count') is None:
-                    firebase_functions.editUser(value_user['uid'],{
-                        "matched_count": [{key: value[1]}]
-                    })
-                else:
-                    new_matched_count = value_user['matched_count'].copy()
-                    new_matched_count.append({key: value[1]})
-                    firebase_functions.editUser(value_user['uid'],{
-                        "matched_count": new_matched_count
-                    })
+                for indiv in value:
+                    value_user = firebase_functions.getUser(indiv[0])
+                    if value_user.get('matched_count') is None:
+                        firebase_functions.editUser(value_user['uid'],{
+                            "matched_count": [{key: indiv[1]}]
+                        })
+                    else:
+                        new_matched_count = value_user['matched_count'].copy()
+                        new_matched_count.append({key: indiv[1]})
+                        firebase_functions.editUser(value_user['uid'],{
+                            "matched_count": new_matched_count
+                        })
 
         # Add empty list to the users with no matches
         for unmatched_user in unmatched_group:

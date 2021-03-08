@@ -71,7 +71,7 @@ def matching_algo_for_user_group(usergroup, match_user_dict):
     user_group = usergroup.copy()
     while len(user_group) > 0:
         unmatched_user_indexes, unmatched_users = find_unmatched_users(user_group)
-        if len(unmatched_users) == 1:
+        if len(unmatched_users) == 1 and len(unmatched_users[0][2]) == 0:
             if match_user_dict.get('unmatched') is None:
                 match_user_dict['unmatched'] = [unmatched_users[0]]
             else:
@@ -124,7 +124,7 @@ if __name__ == "__main__":
         return users_dict
     user_dict = create_all_users_dict(30)
 
-    print(user_dict)
+    # print(user_dict)
     print(matching_algo(user_dict))
             
 
