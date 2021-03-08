@@ -113,6 +113,22 @@ def matching_algo(all_users_dict):
                 break
     return match_user_dict, still_unmatched
 
+def find_match_for_new_user(new_user_id, all_users_dict):
+    match_user_dict = dict()
+    still_unmatched = []
+    platonic_users, non_platonic_users = form_groups(all_users_dict)
+    # we are only working with platonic users for this version
+    users_pool = platonic_users.copy()
+    print(users_pool)
+    users_pool = sorted(users_pool, key=lambda tup: len(tup[1]['matched_count'])) # sort to ascending order of number of match_counts. The goal is to match new user with old users with low match counts
+    for index, value in enumerate(users_pool): # swap new user to the front of the list. The user that was originally at the start of the list should either have zero or a really low match count
+        if value[0] == new_user_id:
+            users_pool[index], users_pool[0] = users_pool[0], users_pool[index]
+            break
+    index_to_be_removed = find_match_in_group(users_pool, match_user_dict) #the index here refers to the index of the unmatched_users list
+    return match_user_dict, still_unmatched
+
+
 if __name__ == "__main__":
     # PYTHONHASHSEED=1833
 

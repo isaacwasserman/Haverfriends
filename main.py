@@ -5,7 +5,7 @@ from firebase.authenticate import authenticate
 import firebase_admin
 from firebase_admin import credentials, firestore, initialize_app
 import firebase.firebaseFunctions as firebase_functions
-from matching_algorithm import matching_algo
+from matching_algorithm import matching_algo, find_match_for_new_user
 from datetime import datetime
 import forms
 from flask_bootstrap import Bootstrap
@@ -167,6 +167,10 @@ def profile(user_ID):
 @app.route("/create-profile", methods = ["GET","POST"])
 def create_profile():
     user = authenticate(request.cookies.get('sessionToken'))
+    existingUserInfo = firebase_functions.getUser(user['uid'])
+    if existingUserInfo is not None and existingUserInfo.get('grad_year') is not '': # if user already has a profile, redirect to edit profile. This is important since we are doing free first 3 matches only for new user
+        return redirect('/edit-profile')    
+    print('me', existingUserInfo)
     if "redirect" in user and user["redirect"] != "/create-profile":
         print(user['redirect'])
         return redirect(user["redirect"])
@@ -202,6 +206,9 @@ def create_profile():
             newInfo["notification_settings"] = {'phone': form.phoneNotification.data}
         newInfo["questionnaire_scores"] = questionnaire_scores
         firebase_functions.editUser(uid, newInfo)
+        all_users = firebase_functions.getAllUsers()
+        matched_dict, unmatched_group = find_match_for_new_user(uid, all_users)
+        matches_and_unmatched_handler(matched_dict, unmatched_group)
         return redirect("/profile/" + uid)
     return render_template("create_profile.html", form=form)
 
@@ -300,7 +307,16 @@ def match_users():
 
         matched_dict, unmatched_group = matching_algo(all_users)
         # Add new match to the different users
-        for key, value in matched_dict.items():
+        matches_and_unmatched_handler(matched_dict, unmatched_group)
+
+        content = {'matching done': 'chats that were never initiated are removed'}
+        return content, status.HTTP_200_OK
+    else:
+        content = {'please move along': 'nothing to see here'}
+        return content, status.HTTP_404_NOT_FOUND
+
+def matches_and_unmatched_handler(matched_dict, unmatched_group):
+    for key, value in matched_dict.items():
             if key != "unmatched":
                 key_user = firebase_functions.getUser(key)
                 if key_user.get('matched_count') is None:
@@ -330,17 +346,11 @@ def match_users():
                             "matched_count": new_matched_count
                         })
 
-        # Add empty list to the users with no matches
-        for unmatched_user in unmatched_group:
-            firebase_functions.editUser(unmatched_user[0],{
-                    "matched_count": []
-            })
-
-        content = {'matching done': 'chats that were never initiated are removed'}
-        return content, status.HTTP_200_OK
-    else:
-        content = {'please move along': 'nothing to see here'}
-        return content, status.HTTP_404_NOT_FOUND
+    # Add empty list to the users with no matches
+    for unmatched_user in unmatched_group:
+        firebase_functions.editUser(unmatched_user[0],{
+                "matched_count": []
+        })
 
 def send_message(to_number, from_number='+17865634468', message='You have a new message on HaverFriends'):
 
