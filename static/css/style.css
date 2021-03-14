@@ -1,0 +1,30 @@
+/* *   {
+    box-sizing: border-box;
+    margin:0;
+}
+
+body {
+    font-family: "Robot", sans=serif;
+} */
+
+/* Navigation */
+
+.nav-container {
+    position: absolute;
+    width: 1440px;
+    height: 140px;
+    left: 0px;
+    top: 0px;
+    background: #DC1446;
+}
+
+.wrapper {
+    max-width: 1440px;
+    /* 0 margin for top and left and auto for left and right */
+    margin: 0 auto;
+}
+
+nav {
+    display: flex;
+    background: #DC1446;
+}
