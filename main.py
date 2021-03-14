@@ -142,6 +142,7 @@ def login():
             response = make_response({"success": True})
             response.set_cookie('sessionToken', session_cookie, expires=expires, httponly=False, secure=False)
         except exceptions.FirebaseError:
+            # try resetting
             return flask.abort(401, 'Failed to create a session cookie')
     else:
         response = make_response(render_template('login.html'))
