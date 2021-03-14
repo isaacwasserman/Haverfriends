@@ -7,6 +7,7 @@
         <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-auth.js"></script>
         <script src="https://www.gstatic.com/firebasejs/ui/4.6.1/firebase-ui-auth.js"></script>
         <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.6.1/firebase-ui-auth.css" />
+        <link rel="stylesheet" href="base.css"/>
         <script>
             function getCookie(cname) {
               var name = cname + "=";
@@ -89,6 +90,13 @@
         </script>
     </head>
     <body>
+        <div class="nav-container">
+            <nav>
+              <div class="logo">
+                <img class="squirrel" src="static/images/squirrel-logo.svg" alt="white outline squirrel">
+              </div>
+            </nav>
+        </div>
         <div id="firebaseui-auth-container"></div>
     </body>
 </html>
