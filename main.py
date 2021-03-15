@@ -144,7 +144,10 @@ def login():
         except exceptions.FirebaseError:
             return flask.abort(401, 'Failed to create a session cookie')
     else:
-        response = make_response(render_template('login.html'))
+        if request.cookies.get('sessionToken') is None:
+            response = make_response(render_template('login.html'))
+        else:
+            response = make_response(redirect("/"))
     return response
 
 @app.route("/logout", methods = ["GET","POST"])
@@ -353,14 +356,14 @@ def send_message(to_number, from_number='+17865634468', message='You have a new 
     print(message.sid)
 
 @app.route("/user_session", methods=["GET"])
-def user_session(): 
+def user_session():
     if authenticate(request.cookies.get('sessionToken')):
-        if 'redirect' in authenticate(request.cookies.get('sessionToken')):  
-            return "create-profile" 
-        else: 
+        if 'redirect' in authenticate(request.cookies.get('sessionToken')):
+            return "create-profile"
+        else:
             return "homepage"
-    else: 
-        return "no" 
+    else:
+        return "no"
 
 if __name__ == '__main__':
     if 'PORT' in os.environ:
