@@ -303,44 +303,50 @@ def match_users():
 
         matched_dict, unmatched_group = matching_algo(all_users)
         # Add new match to the different users
-        for key, value in matched_dict.items():
-            if key != "unmatched":
-                key_user = firebase_functions.getUser(key)
-                if key_user.get('matched_count') is None:
-
-                    firebase_functions.editUser(key_user['uid'],{
-                        "matched_count": [{value[0]: value[1]}]
-                    })
-                else:
-                    new_matched_count = key_user['matched_count'].copy()
-                    new_matched_count.append({value[0]: value[1]})
-                    firebase_functions.editUser(key_user['uid'],{
-                        "matched_count": new_matched_count
-                    })
-
-                value_user = firebase_functions.getUser(value[0])
-                if value_user.get('matched_count') is None:
-                    firebase_functions.editUser(value_user['uid'],{
-                        "matched_count": [{key: value[1]}]
-                    })
-                else:
-                    new_matched_count = value_user['matched_count'].copy()
-                    new_matched_count.append({key: value[1]})
-                    firebase_functions.editUser(value_user['uid'],{
-                        "matched_count": new_matched_count
-                    })
-
-        # Add empty list to the users with no matches
-        for unmatched_user in unmatched_group:
-            firebase_functions.editUser(unmatched_user[0],{
-                    "matched_count": []
-            })
+        matches_and_unmatched_handler(matched_dict, unmatched_group)
 
         content = {'matching done': 'chats that were never initiated are removed'}
         return content, status.HTTP_200_OK
     else:
         content = {'please move along': 'nothing to see here'}
         return content, status.HTTP_404_NOT_FOUND
+
+def matches_and_unmatched_handler(matched_dict, unmatched_group):
+    for key, value in matched_dict.items():
+            if key != "unmatched":
+                key_user = firebase_functions.getUser(key)
+                if key_user.get('matched_count') is None:
+                    matched_count_info = []
+                    for single_match in value:
+                        matched_count_info.append({single_match[0]: single_match[1]}) # key: matched user_id and value: chat_id
+                    firebase_functions.editUser(key_user['uid'],{
+                        "matched_count": matched_count_info
+                    })
+                else:
+                    new_matched_count = key_user['matched_count'].copy()
+                    for single_match in value:
+                        new_matched_count.append({single_match[0]: single_match[1]}) # key: matched user_id and value: chat_id
+                    firebase_functions.editUser(key_user['uid'],{
+                        "matched_count": new_matched_count
+                    })
+                for indiv in value:
+                    value_user = firebase_functions.getUser(indiv[0])
+                    if value_user.get('matched_count') is None:
+                        firebase_functions.editUser(value_user['uid'],{
+                            "matched_count": [{key: indiv[1]}]
+                        })
+                    else:
+                        new_matched_count = value_user['matched_count'].copy()
+                        new_matched_count.append({key: indiv[1]})
+                        firebase_functions.editUser(value_user['uid'],{
+                            "matched_count": new_matched_count
+                        })
+
+    # Add empty list to the users with no matches
+    for unmatched_user in unmatched_group:
+        firebase_functions.editUser(unmatched_user[0],{
+                "matched_count": []
+        })
 
 def send_message(to_number, from_number='+17865634468', message='You have a new message on HaverFriends'):
 
@@ -356,14 +362,14 @@ def send_message(to_number, from_number='+17865634468', message='You have a new 
     print(message.sid)
 
 @app.route("/user_session", methods=["GET"])
-def user_session():
+def user_session(): 
     if authenticate(request.cookies.get('sessionToken')):
-        if 'redirect' in authenticate(request.cookies.get('sessionToken')):
-            return "create-profile"
-        else:
+        if 'redirect' in authenticate(request.cookies.get('sessionToken')):  
+            return "create-profile" 
+        else: 
             return "homepage"
-    else:
-        return "no"
+    else: 
+        return "no" 
 
 if __name__ == '__main__':
     if 'PORT' in os.environ:
