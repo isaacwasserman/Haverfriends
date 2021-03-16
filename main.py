@@ -5,7 +5,7 @@ from firebase.authenticate import authenticate
 import firebase_admin
 from firebase_admin import credentials, firestore, initialize_app
 import firebase.firebaseFunctions as firebase_functions
-from matching_algorithm import matching_algo
+from matching_algorithm import matching_algo, find_match_for_new_user
 from datetime import datetime
 import forms
 from flask_bootstrap import Bootstrap
@@ -170,6 +170,9 @@ def profile(user_ID):
 @app.route("/create-profile", methods = ["GET","POST"])
 def create_profile():
     user = authenticate(request.cookies.get('sessionToken'))
+    existingUserInfo = firebase_functions.getUser(user['uid'])
+    if existingUserInfo is not None and existingUserInfo.get('grad_year') is not '': # if user already has a profile, redirect to edit profile. This is important since we are doing free first 3 matches only for new user
+        return redirect('/edit-profile')
     if "redirect" in user and user["redirect"] != "/create-profile":
         print(user['redirect'])
         return redirect(user["redirect"])
@@ -205,6 +208,9 @@ def create_profile():
             newInfo["notification_settings"] = {'phone': form.phoneNotification.data}
         newInfo["questionnaire_scores"] = questionnaire_scores
         firebase_functions.editUser(uid, newInfo)
+        all_users = firebase_functions.getAllUsers()
+        matched_dict, unmatched_group = find_match_for_new_user(uid, all_users)
+        matches_and_unmatched_handler(matched_dict, unmatched_group)
         return redirect("/profile/" + uid)
     return render_template("create_profile.html", form=form)
 
