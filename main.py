@@ -144,7 +144,10 @@ def login():
         except exceptions.FirebaseError:
             return flask.abort(401, 'Failed to create a session cookie')
     else:
-        response = make_response(render_template('login.html'))
+        if request.cookies.get('sessionToken') is None:
+            response = make_response(render_template('login.html'))
+        else:
+            response = make_response(redirect("/"))
     return response
 
 @app.route("/logout", methods = ["GET","POST"])
@@ -169,8 +172,12 @@ def create_profile():
     user = authenticate(request.cookies.get('sessionToken'))
     existingUserInfo = firebase_functions.getUser(user['uid'])
     if existingUserInfo is not None and existingUserInfo.get('grad_year') is not '': # if user already has a profile, redirect to edit profile. This is important since we are doing free first 3 matches only for new user
+<<<<<<< HEAD
         return redirect('/edit-profile')    
     print('me', existingUserInfo)
+=======
+        return redirect('/edit-profile')
+>>>>>>> ea184abdbea3bcbf6b684c616ed2dc7a0451a6cb
     if "redirect" in user and user["redirect"] != "/create-profile":
         print(user['redirect'])
         return redirect(user["redirect"])

@@ -46,7 +46,7 @@ def form_groups(all_users_dict):
     platonic_users = []
     non_platonic_users = []
     for user_id, user_details in all_users_dict.items():
-        if user_details['want_match']:
+        if user_details['want_match'] and len(user_details['questionnaire_scores']) == 5:
             if user_details['want_platonic']:
                 platonic_users.append((user_id, user_details, [])) # the empty list added in the tuple is meant to track the number of new matches a user has
             else:
