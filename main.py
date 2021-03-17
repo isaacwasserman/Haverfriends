@@ -270,7 +270,7 @@ def edit_profile():
         else:
             newInfo["notification_settings"] = {}
         firebase_functions.editUser(uid, newInfo)
-        return redirect("/profile/" + uid)
+        return redirect("/")
     return render_template("edit_profile.html", form=form, userInfo=existingUserInfo, showAccountStatus=True, user=user_object)
 
 @app.route("/match", methods=["GET"])
