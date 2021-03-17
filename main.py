@@ -157,8 +157,15 @@ def logout():
     return response
 
 @app.route("/about", methods = ["GET","POST"])
-def about():
-    return render_template("about.html")
+def about(user_ID):
+    user = authenticate(request.cookies.get('sessionToken'))
+    if "redirect" in user:
+        return redirect(user["redirect"])
+    uid = user["uid"]
+    user_object=firebase_functions.getUser(user_ID)
+    userInfo = firebase_functions.getUser(uid)
+    print(userInfo)
+    return render_template("about.html", showAccountStatus=True, user=user_object)
 
 @app.route("/create-profile", methods = ["GET","POST"])
 def create_profile():
