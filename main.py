@@ -216,7 +216,7 @@ def create_profile():
         all_users = firebase_functions.getAllUsers()
         matched_dict, unmatched_group = find_match_for_new_user(uid, all_users)
         matches_and_unmatched_handler(matched_dict, unmatched_group)
-        return redirect("/profile/" + uid)
+        return redirect("/")
     return render_template("create_profile.html", form=form)
 
 @app.route("/edit-profile", methods = ["GET","POST"])
