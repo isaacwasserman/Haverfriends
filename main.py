@@ -157,7 +157,7 @@ def logout():
     return response
 
 @app.route("/about", methods = ["GET","POST"])
-def about(user_ID):
+def about():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
