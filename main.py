@@ -157,7 +157,7 @@ def logout():
     return response
 
 @app.route("/about", methods = ["GET","POST"])
-def about(user_ID):
+def about():
     return render_template("about.html")
 
 @app.route("/create-profile", methods = ["GET","POST"])
