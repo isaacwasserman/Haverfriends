@@ -375,6 +375,15 @@ def user_session():
     else: 
         return "no" 
 
+@app.route("/about_test", methods = ["GET","POST"])
+def about_test():
+    user = authenticate(request.cookies.get('sessionToken'))
+    if "redirect" in user:
+        return redirect(user["redirect"])
+    uid = user["uid"]
+    user_object= firebase_functions.getUser(uid)
+    return render_template("about_test.html", showAccountStatus=True, user=user_object)
+
 if __name__ == '__main__':
     if 'PORT' in os.environ:
         # get the heroku port
