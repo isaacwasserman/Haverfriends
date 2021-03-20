@@ -156,16 +156,14 @@ def logout():
     response.set_cookie('sessionToken', "", expires=0, httponly=False, secure=False)
     return response
 
-@app.route("/profile/<user_ID>", methods = ["GET","POST"])
-def profile(user_ID):
+@app.route("/about", methods = ["GET","POST"])
+def about():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
     uid = user["uid"]
-    user_object=user_object = firebase_functions.getUser(user_ID)
-    userInfo = firebase_functions.getUser(uid)
-    print(userInfo)
-    return render_template("profile.html", showAccountStatus=True, user=user_object)
+    user_object= firebase_functions.getUser(uid)
+    return render_template("about.html", showAccountStatus=True, user=user_object)
 
 @app.route("/create-profile", methods = ["GET","POST"])
 def create_profile():
@@ -381,6 +379,15 @@ def user_session():
             return "homepage"
     else: 
         return "no" 
+
+@app.route("/about_test", methods = ["GET","POST"])
+def about_test():
+    user = authenticate(request.cookies.get('sessionToken'))
+    if "redirect" in user:
+        return redirect(user["redirect"])
+    uid = user["uid"]
+    user_object= firebase_functions.getUser(uid)
+    return render_template("about_test.html", showAccountStatus=True, user=user_object)
 
 if __name__ == '__main__':
     if 'PORT' in os.environ:
