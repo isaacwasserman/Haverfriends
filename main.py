@@ -116,12 +116,6 @@ def chat_general():
         return redirect(user["redirect"])
     return render_template("chat_general.html", showAccountStatus=True)
 
-@app.route("/register", methods = ["GET","POST"])
-def register():
-    if request.method == "POST":
-        pass
-    pass
-
 @app.route("/login", methods = ["GET","POST"])
 def login():
     if request.method == 'POST':
@@ -145,7 +139,10 @@ def login():
             # try resetting
             return flask.abort(401, 'Failed to create a session cookie')
     else:
-        response = make_response(render_template('login.html'))
+        if request.cookies.get('sessionToken') is None:
+            response = make_response(render_template('login.html'))
+        else:
+            response = make_response(redirect("/"))
     return response
 
 @app.route("/logout", methods = ["GET","POST"])
@@ -154,24 +151,21 @@ def logout():
     response.set_cookie('sessionToken', "", expires=0, httponly=False, secure=False)
     return response
 
-@app.route("/profile/<user_ID>", methods = ["GET","POST"])
-def profile(user_ID):
+@app.route("/about", methods = ["GET","POST"])
+def about():
     user = authenticate(request.cookies.get('sessionToken'))
     if "redirect" in user:
         return redirect(user["redirect"])
     uid = user["uid"]
-    user_object=user_object = firebase_functions.getUser(user_ID)
-    userInfo = firebase_functions.getUser(uid)
-    print(userInfo)
-    return render_template("profile.html", showAccountStatus=True, user=user_object)
+    user_object= firebase_functions.getUser(uid)
+    return render_template("about.html", showAccountStatus=True, user=user_object)
 
 @app.route("/create-profile", methods = ["GET","POST"])
 def create_profile():
     user = authenticate(request.cookies.get('sessionToken'))
     existingUserInfo = firebase_functions.getUser(user['uid'])
     if existingUserInfo is not None and existingUserInfo.get('grad_year') is not '': # if user already has a profile, redirect to edit profile. This is important since we are doing free first 3 matches only for new user
-        return redirect('/edit-profile')    
-    print('me', existingUserInfo)
+        return redirect('/edit-profile')
     if "redirect" in user and user["redirect"] != "/create-profile":
         print(user['redirect'])
         return redirect(user["redirect"])
@@ -188,8 +182,10 @@ def create_profile():
         for qn in [form.guideQuestionOne.data,form.guideQuestionTwo.data,form.guideQuestionThree.data]:
             if qn != "":
                 guide_qns.append(qn)
-        questionnaire_scores = [form.sportsQuestion.data, form.readingQuestion.data, form.cookingQuestion.data, form.DCFoodQuestion.data, form.MoviesVBoardGamesQuestion.data]
+        questionnaire_scores = [form.sportsQuestion.data, form.readingQuestion.data, form.lutnickQuestion.data, form.sciLiQuestion.data, form.smallTalk.data, form.freeTime.data, form.goodImpression.data, form.scheduleQuestion.data, form.peopleQuestion.data, 
+        form.moviesQuestion.data, form.introExtro.data, form.boardGamesQuestion.data, form.weekendQuestion.data, form.brynMawrQuestion.data,form.brunchQuestion.data,form.headHeart.data, form.catDog.data]
         newInfo = {}
+        classes = [form.classQuestionOne.data, form.classQuestionTwo.data, form.classQuestionThree.data, form.classQuestionFour.data, form.classQuestionFive.data]
         # Add nonempty values to update
         if form.pronouns.data != "":
             newInfo["gender_pronouns"] = form.pronouns.data
@@ -205,12 +201,17 @@ def create_profile():
             newInfo["bio"] = form.bio.data
         if form.phoneNotification.data != "":
             newInfo["notification_settings"] = {'phone': form.phoneNotification.data}
+        if form.favoriteClass.data != "": 
+            newInfo["favorite_class"] = form.favoriteClass.data
+        if form.extracurricularQuestion.data != "": 
+            newInfo["extracurricular"] = form.extracurricularQuestion.data
         newInfo["questionnaire_scores"] = questionnaire_scores
+        newInfo["classes"] = classes
         firebase_functions.editUser(uid, newInfo)
         all_users = firebase_functions.getAllUsers()
         matched_dict, unmatched_group = find_match_for_new_user(uid, all_users)
         matches_and_unmatched_handler(matched_dict, unmatched_group)
-        return redirect("/profile/" + uid)
+        return redirect("/")
     return render_template("create_profile.html", form=form)
 
 @app.route("/edit-profile", methods = ["GET","POST"])
@@ -264,7 +265,7 @@ def edit_profile():
         else:
             newInfo["notification_settings"] = {}
         firebase_functions.editUser(uid, newInfo)
-        return redirect("/profile/" + uid)
+        return redirect("/")
     return render_template("edit_profile.html", form=form, userInfo=existingUserInfo, showAccountStatus=True, user=user_object)
 
 @app.route("/match", methods=["GET"])

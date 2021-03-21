@@ -10,7 +10,7 @@
 </head>
 <body id="theBody">
     <div id="header">
-      <h1><a href="/">Haverfriends</a></h1>
+      <h1><a href="/">Haverfriends </a></h1>
       {% if showAccountStatus %}
       <div id="accountStatus" class="dropdown">
         <button data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -18,7 +18,8 @@
           <h3 id="displayName">{{ user.name }}&nbsp;<span id="downArrow">&#9660;</span></h3>
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" href="/profile/{{ user.uid }}">View My Profile</a>
+          <a class="dropdown-item" href="/">My conversations</a>
+          <a class="dropdown-item" href="/about"> About </a>
           <a class="dropdown-item" href="/edit-profile">Edit My Profile</a>
           <a class="dropdown-item danger" href="/logout">Log Out</a>
         </div>

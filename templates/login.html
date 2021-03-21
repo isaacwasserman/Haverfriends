@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
         <title>Login</title>
@@ -6,6 +7,7 @@
         <script src="https://www.gstatic.com/firebasejs/8.2.5/firebase-auth.js"></script>
         <script src="https://www.gstatic.com/firebasejs/ui/4.6.1/firebase-ui-auth.js"></script>
         <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.6.1/firebase-ui-auth.css" />
+        <link rel="stylesheet-2" href="style.css"/>
         <script>
             function getCookie(cname) {
               var name = cname + "=";
@@ -45,24 +47,22 @@
                     console.log(idToken)
                     $.post("/login", {idToken: idToken, check: true}, function(result){
                         console.log(result)
-                        setInterval(function(){
-                          $.ajax({
-                          url: window.location.origin + '/user_session',
-                          type: 'GET',
-                          success: function(data) {
-                              console.log(data)
-                              if (data == "create-profile") { 
-                                  //change the redirect link below to the homepage of localhost if you want to test registration locally, otherwise for deployment purposes, leave it as the long link below
-                                  window.location.replace("http://haverfriends.herokuapp.com/create-profile");
-                                  //window.location.replace("http://127.0.0.1:5000/create-profile");
-                                      }
-                              else if (data == "homepage") { 
-                                  window.location.replace("http://haverfriends.herokuapp.com");
-                                  //window.location.replace("http://127.0.0.1:5000/");
-                              }
-                                  },
-                              })
-                        }, 1000)
+                        $.ajax({
+                        url: window.location.origin + '/user_session',
+                        type: 'GET',
+                        success: function(data) {
+                            console.log(data)
+                            if (data == "create-profile") {
+                                //change the redirect link below to the homepage of localhost if you want to test registration locally, otherwise for deployment purposes, leave it as the long link below
+                                window.location.replace("http://haverfriends.herokuapp.com/create-profile");
+                                //window.location.replace("http://127.0.0.1:5000/create-profile");
+                                    }
+                            else if (data == "homepage") {
+                                window.location.replace("http://haverfriends.herokuapp.com");
+                                //window.location.replace("http://127.0.0.1:5000/");
+                            }
+                                },
+                            })
                     });
                   }).catch(function(error){
                     console.log(error)
@@ -88,6 +88,16 @@
         </script>
     </head>
     <body>
+        <div class="nav-container">
+            <nav>
+              <div class="logo">
+                <img class="squirrel" src="static/images/squirrel-logo.svg" alt="white outline squirrel">
+              </div>
+            </nav>
+        </div>
         <div id="firebaseui-auth-container"></div>
+        <div id="acorn-login-filled">
+          <img class="acorn" src="static/images/acorn-filled.svg" alt="black acorn with login fields">
+        </div>
     </body>
 </html>
