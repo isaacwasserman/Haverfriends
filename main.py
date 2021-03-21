@@ -184,6 +184,7 @@ def create_profile():
         questionnaire_scores = [form.sportsQuestion.data, form.readingQuestion.data, form.lutnickQuestion.data, form.sciLiQuestion.data, form.smallTalk.data, form.freeTime.data, form.goodImpression.data, form.scheduleQuestion.data, form.peopleQuestion.data, 
         form.moviesQuestion.data, form.introExtro.data, form.boardGamesQuestion.data, form.weekendQuestion.data, form.brynMawrQuestion.data,form.brunchQuestion.data,form.headHeart.data, form.catDog.data]
         newInfo = {}
+        classes = [form.classQuestionOne.data, form.classQuestionTwo.data, form.classQuestionThree.data, form.classQuestionFour.data, form.classQuestionFive.data]
         # Add nonempty values to update
         if form.pronouns.data != "":
             newInfo["gender_pronouns"] = form.pronouns.data
@@ -199,7 +200,12 @@ def create_profile():
             newInfo["bio"] = form.bio.data
         if form.phoneNotification.data != "":
             newInfo["notification_settings"] = {'phone': form.phoneNotification.data}
+        if form.favoriteClass.data != "": 
+            newInfo["favorite_class"] = form.favoriteClass.data
+        if form.extracurricularQuestion.data != "": 
+            newInfo["extracurricular"] = form.extracurricularQuestion.data
         newInfo["questionnaire_scores"] = questionnaire_scores
+        newInfo["classes"] = classes
         firebase_functions.editUser(uid, newInfo)
         all_users = firebase_functions.getAllUsers()
         matched_dict, unmatched_group = find_match_for_new_user(uid, all_users)
