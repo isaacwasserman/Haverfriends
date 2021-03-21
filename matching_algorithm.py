@@ -46,7 +46,7 @@ def form_groups(all_users_dict):
     platonic_users = []
     non_platonic_users = []
     for user_id, user_details in all_users_dict.items():
-        if user_details['want_match'] and len(user_details['questionnaire_scores']) == 5:
+        if user_details['want_match'] and len(user_details['questionnaire_scores']) == 17:
             if user_details['want_platonic']:
                 platonic_users.append((user_id, user_details, [])) # the empty list added in the tuple is meant to track the number of new matches a user has
             else:
@@ -119,7 +119,7 @@ def find_match_for_new_user(new_user_id, all_users_dict):
     platonic_users, non_platonic_users = form_groups(all_users_dict)
     # we are only working with platonic users for this version
     users_pool = platonic_users.copy()
-    print(users_pool)
+    print('users_pool', users_pool)
     users_pool = sorted(users_pool, key=lambda tup: len(tup[1]['matched_count'])) # sort to ascending order of number of match_counts. The goal is to match new user with old users with low match counts
     for index, value in enumerate(users_pool): # swap new user to the front of the list. The user that was originally at the start of the list should either have zero or a really low match count
         if value[0] == new_user_id:

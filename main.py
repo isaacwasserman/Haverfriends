@@ -209,7 +209,9 @@ def create_profile():
         newInfo["classes"] = classes
         firebase_functions.editUser(uid, newInfo)
         all_users = firebase_functions.getAllUsers()
+        print('hit')
         matched_dict, unmatched_group = find_match_for_new_user(uid, all_users)
+        print('matched_dict and unmatched_group', matched_dict, unmatched_group)
         matches_and_unmatched_handler(matched_dict, unmatched_group)
         return redirect("/")
     return render_template("create_profile.html", form=form)
