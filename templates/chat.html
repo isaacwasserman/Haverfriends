@@ -207,7 +207,15 @@
             <li>They use {{otherUser.gender_pronouns}} pronouns.</li>
             <li>Their bio: {{otherUser.bio}}</li>
             <li>They're a member of the class of {{otherUser.grad_year}}.</li>
-            <li>"{{otherUser.fun_fact}}"</li>
+            <li>Here is a fun fact about {{otherUser.name}}: {{otherUser.fun_fact}}</li>
+            <li>{{otherUser.name}}'s favorite class is {{otherUser.favorite_class}}"</li>
+            <li>These are the classes that {{otherUser.name}} is taking this semester:
+                <ul>
+                {% for class in otherUser.classes %}
+                    <li>{{class}}</li>
+                {% endfor %}
+                </ul>
+            </li>
             <li> {{question}} </li>
 <!--            {% for info in other_info %}-->
 <!--            <li> {{info}} </li>-->
