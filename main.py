@@ -116,12 +116,6 @@ def chat_general():
         return redirect(user["redirect"])
     return render_template("chat_general.html", showAccountStatus=True)
 
-@app.route("/register", methods = ["GET","POST"])
-def register():
-    if request.method == "POST":
-        pass
-    pass
-
 @app.route("/login", methods = ["GET","POST"])
 def login():
     if request.method == 'POST':
@@ -187,7 +181,8 @@ def create_profile():
         for qn in [form.guideQuestionOne.data,form.guideQuestionTwo.data,form.guideQuestionThree.data]:
             if qn != "":
                 guide_qns.append(qn)
-        questionnaire_scores = [form.sportsQuestion.data, form.readingQuestion.data, form.cookingQuestion.data, form.DCFoodQuestion.data, form.MoviesVBoardGamesQuestion.data]
+        questionnaire_scores = [form.sportsQuestion.data, form.readingQuestion.data, form.lutnickQuestion.data, form.sciLiQuestion.data, form.smallTalk.data, form.freeTime.data, form.goodImpression.data, form.scheduleQuestion.data, form.peopleQuestion.data, 
+        form.moviesQuestion.data, form.introExtro.data, form.boardGamesQuestion.data, form.weekendQuestion.data, form.brynMawrQuestion.data,form.brunchQuestion.data,form.headHeart.data, form.catDog.data]
         newInfo = {}
         # Add nonempty values to update
         if form.pronouns.data != "":
@@ -374,15 +369,6 @@ def user_session():
             return "homepage"
     else: 
         return "no" 
-
-@app.route("/about_test", methods = ["GET","POST"])
-def about_test():
-    user = authenticate(request.cookies.get('sessionToken'))
-    if "redirect" in user:
-        return redirect(user["redirect"])
-    uid = user["uid"]
-    user_object= firebase_functions.getUser(uid)
-    return render_template("about_test.html", showAccountStatus=True, user=user_object)
 
 if __name__ == '__main__':
     if 'PORT' in os.environ:
